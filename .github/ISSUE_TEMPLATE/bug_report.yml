@@ -1,0 +1,23 @@
+name: Bug report
+description: Report a problem with Threads, its CLI, or its agent bridge
+labels: [bug]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+      description: Include relevant logs with secrets and private content removed.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Browser or agent runner, OS, architecture, and Threads version

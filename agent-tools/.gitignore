@@ -1,0 +1,15 @@
+node_modules/
+cli/node_modules/
+cli/dist/
+bridge/bin/
+bridge/dist/
+bridge/threads-agent-bridge
+bridge/logs/
+bridge/*.db
+bridge/*.db-*
+bridge/.env
+bridge/.secrets/
+bridge/config.local.json
+/dist/
+default.profraw
+.DS_Store

@@ -1,0 +1,21 @@
+{
+  "name": "threads-echo-bot",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Reference Threads bot: subscribes to a channel over WebSocket and replies over REST, typed against the OpenAPI spec.",
+  "scripts": {
+    "start": "tsx watch src/echo-bot.ts",
+    "typecheck": "tsc --noEmit",
+    "gen-types": "npm --prefix ../../api run openapi:types"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/ws": "^8.5.13",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

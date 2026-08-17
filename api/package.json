@@ -1,0 +1,45 @@
+{
+  "name": "@threads/api",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --config wrangler.toml --port 8788",
+    "test": "npm run test:service && vitest run",
+    "test:service": "vitest run --config vitest.service.config.ts",
+    "test:smoke": "vitest run --config vitest.smoke.config.ts",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "db:migrate:local": "wrangler d1 migrations apply threads --local --config wrangler.toml",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote --config ../wrangler.jsonc",
+    "db:seed:local": "node scripts/seed-local.mjs",
+    "setup:local": "npm run db:migrate:local && npm run db:seed:local",
+    "openapi:bundle": "node scripts/bundle-specs.mjs",
+    "openapi:lint": "redocly lint openapi/threads.yaml openapi/ws-events.yaml",
+    "api:contract:validate": "npm run openapi:lint",
+    "openapi:types": "mkdir -p generated/types && openapi-typescript openapi/threads.yaml -o generated/types/threads.d.ts && openapi-typescript openapi/ws-events.yaml -o generated/types/ws-events.d.ts",
+    "openapi:python-client": "scripts/generate-python-client.sh",
+    "openapi:check": "npm run openapi:lint && npm run api:contract:test && npm run openapi:clients:check && npm run openapi:types && vitest run --config vitest.contract.config.ts",
+    "api:contract:test": "node --test ../scripts/artifact-metadata.test.mjs scripts/build-contract.test.mjs",
+    "api:contract:build": "node scripts/build-contract.mjs",
+    "openapi:clients": "scripts/generate-openapi-clients.sh",
+    "openapi:clients:check": "scripts/check-openapi-clients.sh"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.21.3",
+    "@cloudflare/workers-types": "^5.20260811.1",
+    "@redocly/cli": "^2.31.2",
+    "@types/ws": "^8.18.1",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10",
+    "wrangler": "^4.123.0",
+    "ws": "^8.20.1",
+    "yaml": "^2.9.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "hono": "^4.12.21",
+    "zod": "^4.4.3"
+  }
+}

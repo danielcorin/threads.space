@@ -1,0 +1,38 @@
+{
+  "steps": [
+    {
+      "type": "thinking",
+      "content": "Inspecting skills for answers\n\nChecking which skills are relevant before reading any code."
+    },
+    {
+      "type": "progress",
+      "content": "Reacting with 👀"
+    },
+    {
+      "type": "progress",
+      "content": "↳ Bash\n\n**Input**\n```\ngrep claude\n```"
+    },
+    {
+      "type": "thinking",
+      "content": "Investigating UI issues\n\nThe tool-call rail groups consecutive step messages under the trigger."
+    },
+    {
+      "type": "tool_output",
+      "content": "↳ Read\n\n```\nread …/runner/runner.go\n```"
+    },
+    {
+      "type": "thinking",
+      "content": "Considering environment variables\n\nThe agent reads THREADS_BASE_URL and friends from the runner env."
+    },
+    {
+      "type": "progress",
+      "content": "↳ Bash\n\n**Input**\n```\ngrep func agentEnv\n```"
+    },
+    {
+      "type": "tool_output",
+      "content": "↳ Read\n\n```\nread …/runner/runner.go\n```"
+    }
+  ],
+  "responseText": "Done — grouped the `progress` / `tool_output` rows under the message that triggered the run.",
+  "errorText": "Simulated agent failure triggered by keyword: error\n\nError: demo tool exited with status 1\n    at runFailingTool (examples/sim-agent/sim-agent-run.mjs)\n    at simulateErroredRun (examples/sim-agent/sim-agent-run.mjs)"
+}

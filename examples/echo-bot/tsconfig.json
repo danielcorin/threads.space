@@ -1,0 +1,18 @@
+{
+  // Type-check only (`tsc --noEmit`). The bot is *run* with tsx, which strips types
+  // without type-checking, so it starts even when the generated spec types below are
+  // absent. Run `npm run gen-types` to produce them, then `npm run typecheck`.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022"],
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*.ts"]
+}

@@ -1,0 +1,614 @@
+# Threads — connecting an agent
+
+> Threads is a chat platform with first-class support for bot/agent users. A bot is a
+> normal user with `role: "bot"` that **receives** live events over authenticated
+> WebSockets or signed webhooks and **sends** replies/reactions over REST (or correlated WebSocket actions).
+> The whole contract is an OpenAPI document published by every running instance. This
+> file is self-contained: everything an agent needs to build a Threads bot is below, and
+> it points to the instance's hosted, always-current API reference for full detail.
+
+Key facts an agent should internalize first:
+
+- A bot authenticates with an **API token** (`Authorization: Bearer <token>`) for REST, the WebSocket upgrade, and webhook management. Bots have no session cookie.
+- An MCP-capable agent can use the same token with the instance's hosted **MCP server** at `https://<instance>/mcp` to discover and call curated Threads tools directly. MCP is request/response; use `/events` or webhooks for an always-on bot that needs live inbound messages.
+- A bot hears about activity over a WebSocket it holds open — **recommended: one `GET /events` socket for all of its channels/DMs**; `GET /ws/:channelId` is the per-channel option for typing signals — or over signed webhooks registered on the bot user. Webhooks are at-least-once and require idempotent handlers.
+- Provisioning is **self-service for any admin** using their own token. No server secret and no shell access are needed.
+- Provisioning only creates identity, credentials, capabilities, and channel/DM membership. A bot will not answer until a real adapter/plugin/process is installed, running, connected to `/events` or webhooks, and sending replies over REST.
+- Replace `<instance>` below with the deployment origin. On a **combined** client+API deployment the REST API is under **`/api`** (`https://<instance>/api`); a standalone API host omits the prefix. The WebSocket URL is the API base with the scheme swapped to `wss://`; webhook receiver URLs are HTTPS endpoints you operate.
+
+## Hosted API reference
+
+A running instance publishes the full contract and an interactive reference, CORS-open —
+this is the authoritative, always-current source of truth:
+
+- `https://<instance>/api/docs` — interactive API reference (REST, webhooks, **and** WebSocket events)
+- `https://<instance>/api/openapi.json` — REST OpenAPI document
+- `https://<instance>/api/ws-events.json` — WebSocket event payload schemas
+- `https://<instance>/api/cli.json` — compatible open-source agent-tools version, CLI/bridge release, checksums, and instance-local contract links
+
+(Standalone API host: the same paths without the `/api` prefix.)
+
+## Hosted MCP
+
+Every combined instance exposes the curated caller action catalog as a remote MCP
+server:
+
+- URL: `https://<instance>/mcp`
+- Transport: stateless MCP Streamable HTTP
+- Authentication: `Authorization: Bearer <API_TOKEN>` on every request
+
+The MCP URL is at the instance root, not under `/api`. A standalone API host also
+uses `/mcp`. Configure an MCP client with the URL and an explicit Authorization
+header; the endpoint does not accept the browser session cookie. Current API tokens
+carry enforced `threads:read` / `threads:write` scopes and expire after 90 days by
+default. Tools also remain limited by the token user's role and channel memberships.
+The raw token is returned once; Threads stores only a keyed one-way verifier and a
+non-secret identifier. Revoking a token closes its active WebSockets immediately.
+
+Use MCP when an agent needs to work in Threads on demand: it can discover the
+available tools, browse or join channels, read conversations and threads, send or
+reply to messages, search, react, and use the other workspace primitives allowed by
+its token. No generated SDK or custom REST wrapper is required. MCP does not deliver
+new-message events to a sleeping agent, so a resident bot still needs the `/events`
+WebSocket or signed webhooks described below.
+
+MCP tools and the repository CLI are generated from one goal-level caller registry.
+Their inputs, outputs, safety annotations, and backing operations stay synchronized
+with the OpenAPI contract and are validated against the live API in CI.
+
+## Generate a typed client
+
+Point any OpenAPI generator at the hosted documents:
+
+```bash
+# TypeScript types for both surfaces
+npx openapi-typescript https://<instance>/api/openapi.json   -o threads.d.ts
+npx openapi-typescript https://<instance>/api/ws-events.json -o ws-events.d.ts
+
+# Full Python client
+openapi-python-client generate --url https://<instance>/api/openapi.json
+```
+
+> **Discriminator caveat:** `openapi-typescript` rewrites each WS event's `type` to the
+> schema name (e.g. `"MessageEvent"`), but the value on the wire is the OpenAPI `const`
+> (`"message"`). Narrow on the wire value and re-map the type, e.g.
+> `type MessageEvent = Omit<Schemas['MessageEvent'], 'type'> & { type: 'message' }`.
+
+## Provision a bot (any admin, self-service)
+
+Four steps with an explicitly-scoped admin API token — no server secret:
+
+```bash
+export THREADS_API="https://<instance>/api"   # no trailing slash
+
+# 1. Mint an admin provisioning token for yourself from an interactive session.
+curl -sc cookies.txt -X POST "$THREADS_API/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"username":"<admin-username>","password":"<password>"}'
+curl -sb cookies.txt -X POST "$THREADS_API/users/me/api-tokens" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"bot-admin","scopes":["threads:read","threads:write","users:provision","tokens:manage"]}'
+# → {"token":"<ADMIN_TOKEN>", ...}
+export ADMIN_TOKEN="<ADMIN_TOKEN>"
+
+# 2. Create the bot user (role: "bot"). The password is unused at runtime.
+curl -s -X POST "$THREADS_API/users" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \
+  -d '{"username":"my-agent","displayName":"My Agent","password":"'"$(openssl rand -hex 24)"'","role":"bot"}'
+# → {"id":"<BOT_ID>", ...}
+export BOT_ID="<BOT_ID>"
+
+# 3. Mint the bot's runtime API token (shown once; used for WS + REST).
+curl -s -X POST "$THREADS_API/users/$BOT_ID/api-tokens" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \
+  -d '{"name":"my-agent-runtime"}'
+# → {"token":"<BOT_TOKEN>", ...}
+export BOT_TOKEN="<BOT_TOKEN>"
+
+# For webhook delivery, include webhook_urls in that same token request:
+# -d '{"name":"my-agent-runtime","webhook_urls":["https://agent.example.com/threads/webhook"]}'
+# → {"token":"<BOT_TOKEN>","webhooks":[{"id":"<WEBHOOK_ID>","secret":"<WEBHOOK_SECRET>", ...}], ...}
+
+# 4. Put the bot in a channel (it must be a current member, or WS/webhook/sends fail).
+curl -s -X POST "$THREADS_API/channels" -H "Authorization: Bearer $BOT_TOKEN" \
+  -H "Content-Type: application/json" -d '{"name":"bot-lab","description":"Bot testing"}'
+# → {"id":"<CHANNEL_ID>", ...}  then add a human:
+curl -s -X POST "$THREADS_API/channels/<CHANNEL_ID>/members" \
+  -H "Authorization: Bearer $BOT_TOKEN" -H "Content-Type: application/json" \
+  -d '{"username":"<human-username>"}'
+
+# Verify the bot token authenticates as the bot:
+curl -s "$THREADS_API/users/me" -H "Authorization: Bearer $BOT_TOKEN"
+# → {"id":"<BOT_ID>","username":"my-agent","role":"bot", ...}
+```
+
+> `POST /users/:id/api-tokens` is admin-gated (the `is_admin` flag) — authorized by
+> the caller's session/bearer credential, no server secret.
+
+Webhook management is self-scoped to the authenticated user: `GET /users/me/webhooks`
+lists registrations, `POST /users/me/webhooks` with `{ "url": "https://..." }`
+creates one and returns its signing secret once, and `DELETE /users/me/webhooks/:id`
+removes one.
+
+## Framework-native agent integrations
+
+If you are running inside an agent framework with a native messaging integration
+surface, implement Threads there first. The target artifact is framework-owned
+integration code: a Hermes platform adapter, an OpenClaw channel plugin, a bot
+runtime plugin, or the equivalent native extension for the framework you are in.
+
+Do **not** make a generic sidecar that calls the framework through an
+OpenAI-compatible `/v1/chat/completions` endpoint unless the framework's native
+plugin/channel API is unavailable. A fallback bridge is a diagnostic workaround,
+not the target integration.
+
+Most operators should provision the bot separately and pass the runtime token to
+the integration. Only perform admin provisioning inside the agent process when the
+operator explicitly asks for that and supplies admin credentials.
+
+Common environment contract for framework adapters:
+
+```bash
+THREADS_API_URL=https://<instance>/api        # no trailing slash
+THREADS_BOT_TOKEN=<bot runtime token>
+THREADS_BOT_USER_ID=<bot user id>
+THREADS_BOT_USERNAME=<bot username>
+THREADS_CHANNEL_ID=<optional test/default channel id>
+THREADS_HOME_CHANNEL=<optional default delivery channel id; often same as THREADS_CHANNEL_ID>
+THREADS_RESPOND_TO_ALL=0|1                    # optional test mode; production normally uses 0
+THREADS_FORCE_THREAD=0|1                      # optional; keep answers threaded when possible
+THREADS_REPORT_PROCESSES=0|1                  # optional; default 1 for framework adapters
+THREADS_REPORT_TOOL_CALLS=0|1                 # optional; default 1 when native hooks exist
+```
+
+Never print token values, admin passwords, or full environment dumps. Keep secrets
+in environment variables or the framework's secret store; if a debug note must
+mention a credential, record only whether it is present plus a short redacted
+fingerprint.
+
+Runtime URL note: choose `THREADS_API_URL` from the runtime's network namespace.
+For a local process this is usually `http://localhost:8788`; for a container on
+the same host it may be `http://host.docker.internal:8788`; for a deployed
+combined client+API instance it is usually `https://<instance>/api`.
+
+Native integration acceptance contract:
+
+- A provisioned bot is not a working integration. The framework runtime must load
+  the native adapter/plugin, connect to Threads `/events`, dispatch accepted human
+  messages through the framework's normal agent runtime, and send REST replies.
+- A complete turn creates `POST /processes`, immediately stamps the trigger with
+  `POST /messages/:id/process` and `status: "processing"` so the visible message
+  status indicator appears, tags every trace and final answer with
+  `metadata.trigger_id`, records `tool_call` / `reply` / token activity when
+  available, and closes the process with `done`, `error`, or `killed` so the
+  indicator clears.
+- A final user-visible answer is `message_type: "response"`. Tool/progress rows
+  are `tool_output`, `thinking`, or `progress`; they are not substitutes for the
+  final response.
+- Tool rows must come from real native lifecycle hooks or real native progress
+  messages. Do not synthesize fake tool calls from generic status text.
+- If the framework has tools, a smoke test should ask the bot to run one harmless
+  command and should verify: a process exists, at least one `tool_output` is
+  grouped under the trigger, the full tool input/body is preserved, a final
+  `response` exists, and the process ends as `done`.
+- If the framework cannot expose tool lifecycle events, document that limitation
+  explicitly and still wire processes, final replies, cancellation, reconnects,
+  and loop prevention.
+
+Adapter behavior all frameworks should share:
+
+- Before opening the event stream at startup, call authenticated
+  `POST /processes/cleanup-by-bot` once. It marks this bot's abandoned
+  `running`/`queued` turns `restarted` and is safe to repeat.
+- Hold one authenticated `GET /events` socket with a WebSocket client that can set
+  `Authorization: Bearer <THREADS_BOT_TOKEN>`.
+- Treat `event.room.id`, `event.channelId`, and `event.threadId || event.id` as the
+  stable external conversation/thread keys you pass into the framework runtime.
+- Ignore events from `THREADS_BOT_USER_ID`; ignore events whose `messageType` is not
+  `human`; treat `bot_loop_tripped` as informational.
+- In channels, respond when the bot is in `mentions`, `autoRespondBotId` equals
+  `THREADS_BOT_USER_ID`, or `THREADS_RESPOND_TO_ALL=1`. In DMs, respond to every
+  human message.
+- Store enough trigger metadata for outbound delivery: `channelId`, trigger
+  message `id`, optional `threadId`, and `room.type`. Choose the delivery surface
+  deliberately: use `POST /channels/:id/messages` for final answers that should be
+  visible in the channel/DM timeline, preserving `metadata.trigger_id`; use
+  `POST /messages/:id/replies` only when the host workflow expects the answer in
+  the thread pane. If manually creating a threaded channel message, include
+  `threadId`.
+- Use `message_type: "response"` for final answers. Use `progress`, `thinking`,
+  and `tool_output` only when you also preserve `metadata.trigger_id` so the UI can
+  group traces.
+- Wrap every accepted user turn in the Processes API unless disabled by config:
+  create `POST /processes`, immediately stamp the trigger with
+  `POST /messages/:id/process` and `status: "processing"` for the visible message
+  status indicator, record `reply`, `tool_call`, and token usage activities when
+  available, and close with `PATCH /processes/:id`.
+- Report tool calls only from native framework lifecycle hooks or intermediate
+  outbound messages. Do not invent fake tool traces when the framework does not
+  expose them.
+- Send `{ "type": "ping" }` every ~30 seconds on `/events`; reconnect with
+  exponential backoff. If you expose presence via `GET /ws/presence`, answer the
+  server's `ping` with `pong`.
+- Listen for `process_kill` and cancel the framework run if the user stops a turn.
+
+### Hermes platform adapter target
+
+Hermes supports gateway platform plugins. Build a Threads platform plugin instead
+of an external bridge:
+
+```text
+~/.hermes/plugins/platforms/threads/
+  plugin.yaml
+  adapter.py
+```
+
+Install it into Hermes' user plugin root for the runtime you are targeting. Common
+locations are `~/.hermes/plugins/platforms/threads/`,
+`$HERMES_HOME/plugins/platforms/threads/`, or the data directory configured by the
+deployment. If you are unsure, inspect `hermes plugins --help`, `hermes config`,
+and the installed Hermes plugin docs in that environment.
+
+Recommended Hermes runtime config for Threads:
+
+```yaml
+model:
+  provider: openrouter
+  default: "anthropic/claude-opus-4.8"   # or the operator's chosen model
+  max_tokens: 8192                       # avoid oversized provider defaults
+display:
+  platforms:
+    threads:
+      tool_progress: verbose             # preserve full terminal/tool bodies
+      tool_preview_length: 0
+```
+
+The `model.max_tokens` value is an operator-tunable output cap. It is especially
+important for OpenRouter Anthropic models because Hermes may otherwise request
+the model's very large native output ceiling and receive a provider-side 402/400
+even for small prompts. The `display.platforms.threads` settings keep Hermes from
+truncating terminal/tool progress before the Threads adapter sees it.
+
+`plugin.yaml`:
+
+```yaml
+name: threads-platform
+label: Threads
+kind: platform
+version: 1.0.0
+description: Native Threads platform plugin for Hermes Agent
+requires_env:
+  - name: THREADS_API_URL
+    password: false
+  - name: THREADS_BOT_TOKEN
+    password: true
+  - name: THREADS_BOT_USER_ID
+    password: false
+  - name: THREADS_BOT_USERNAME
+    password: false
+optional_env:
+  - name: THREADS_HOME_CHANNEL
+    password: false
+  - name: THREADS_RESPOND_TO_ALL
+    password: false
+```
+
+`adapter.py` should follow Hermes' `gateway.platforms.base.BasePlatformAdapter`
+contract:
+
+```python
+import os
+
+from gateway.config import Platform, PlatformConfig
+from gateway.platforms.base import BasePlatformAdapter, SendResult
+
+class ThreadsAdapter(BasePlatformAdapter):
+    def __init__(self, config: PlatformConfig):
+        super().__init__(config, Platform("threads"))
+        # Read THREADS_* env/config extras here.
+
+    async def connect(self) -> bool:
+        # Start a background /events reader, call self._mark_connected(), and
+        # forward accepted Threads messages through Hermes' native inbound path:
+        # self.handle_message(MessageEvent(...)) or the current installed equivalent.
+        return True
+
+    async def send(self, chat_id, content, reply_to=None, metadata=None):
+        # Translate Hermes outbound messages to Threads REST sends.
+        return SendResult(success=True, message_id="<threads-message-id>")
+
+    async def edit_message(self, chat_id, message_id, content, *, finalize=False):
+        # Patch a previously sent Threads message. Hermes uses this for native
+        # editable tool-progress bubbles; without it the gateway may drop tool
+        # progress instead of emitting separate noisy messages.
+        return SendResult(success=True, message_id=message_id)
+
+    async def disconnect(self) -> None:
+        # Stop the /events task and close the socket.
+        pass
+
+def check_requirements():
+    return bool(os.getenv("THREADS_API_URL") and os.getenv("THREADS_BOT_TOKEN"))
+
+def _env_enablement():
+    if not check_requirements():
+        return None
+    return {
+        "api_url": os.getenv("THREADS_API_URL"),
+        "token": os.getenv("THREADS_BOT_TOKEN"),
+        "home_channel": {
+            "chat_id": os.getenv("THREADS_HOME_CHANNEL") or os.getenv("THREADS_CHANNEL_ID") or "threads",
+            "name": "Threads",
+        },
+    }
+
+def register(ctx):
+    ctx.register_platform(
+        name="threads",
+        label="Threads",
+        adapter_factory=lambda cfg: ThreadsAdapter(cfg),
+        check_fn=check_requirements,
+        env_enablement_fn=_env_enablement,
+        cron_deliver_env_var="THREADS_HOME_CHANNEL",
+        allowed_users_env="THREADS_ALLOWED_USERS",
+        allow_all_env="THREADS_ALLOW_ALL_USERS",
+        max_message_length=0,
+        platform_hint="You are chatting from Threads. Preserve thread context and keep replies concise.",
+    )
+```
+
+Use the installed Hermes types for the exact inbound event constructor. The semantic
+mapping is fixed: Threads message `content` becomes the user text; `channelId` /
+`room.id` becomes the Hermes chat id; Threads `username` / `userId` becomes the
+sender identity; trigger message id and `threadId` go in metadata so `send()` can
+reply to the right Threads message.
+
+For Hermes, create a Threads process before handing the message to Hermes' native
+inbound path, then immediately stamp the trigger message with
+`POST /messages/:id/process` and `status: "processing"` so the visible status
+indicator appears. Close the process when Hermes sends the final `response`
+through the adapter, and count native tool-progress output as process `tool_call`
+activity. Implement `edit_message`: current Hermes gateway builds enable chat tool
+progress only for platform adapters that override `BasePlatformAdapter.edit_message`,
+then send the first progress bubble through `send()` and update it through
+`edit_message()`. Classify those Hermes progress-loop sends as `tool_output` or
+`thinking`, preserve `metadata.trigger_id`, and count only real tool-progress
+entries. Non-tool status or refusal notices should be `progress`, not fake
+`tool_output` rows. If the installed Hermes build exposes a separate platform-level
+tool lifecycle observer, wire that observer to the same reporter; otherwise do not
+synthesize tool rows.
+
+### OpenClaw channel plugin target
+
+OpenClaw supports native channel plugins. Build a Threads channel plugin instead
+of an external bridge:
+
+```text
+openclaw-threads-channel/
+  package.json
+  openclaw.plugin.json
+  src/channel.ts
+  src/index.ts
+```
+
+`openclaw.plugin.json` should declare channel ownership with `channels`, not a
+generic kind:
+
+```json
+{
+  "id": "threads",
+  "channels": ["threads"],
+  "name": "Threads",
+  "description": "Threads channel plugin",
+  "configSchema": { "type": "object", "additionalProperties": false, "properties": {} },
+  "channelConfigs": {
+    "threads": {
+      "schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "apiUrl": { "type": "string" },
+          "botToken": { "type": "string" },
+          "botUserId": { "type": "string" },
+          "botUsername": { "type": "string" },
+          "homeChannel": { "type": "string" },
+          "respondToAll": { "type": "boolean" }
+        }
+      },
+      "uiHints": { "botToken": { "label": "Threads bot token", "sensitive": true } }
+    }
+  }
+}
+```
+
+`package.json` should use OpenClaw extension metadata and point at the channel
+module:
+
+```json
+{
+  "name": "@local/openclaw-threads-channel",
+  "version": "1.0.0",
+  "type": "module",
+  "openclaw": {
+    "extensions": ["./dist/index.js"],
+    "channel": {
+      "id": "threads",
+      "label": "Threads",
+      "blurb": "Connect OpenClaw to Threads."
+    }
+  }
+}
+```
+
+The channel implementation should use OpenClaw's channel SDK for the installed
+version (`createChatChannelPlugin`, `createChannelPluginBase`, channel ingress and
+outbound APIs, or their current equivalents):
+
+- When using OpenRouter models whose discovered output cap is very large, pin the
+  selected model in OpenClaw's provider catalog with a smaller `maxTokens` value
+  (for example `8192`). A typical config shape is
+  `models.providers.openrouter.models[] = { id: "anthropic/claude-opus-4.8",
+  maxTokens: 8192, contextWindow: 200000, ... }`, plus
+  `agents.defaults.model.primary = "openrouter/anthropic/claude-opus-4.8"`.
+  Without this, OpenClaw may request the model's 128k native output ceiling and
+  OpenRouter can reject small prompts with a credit/max_tokens error.
+- `config.resolveAccount()` reads `channels.threads` config first, then falls back
+  to `THREADS_*` env vars.
+- `setup.applyAccountConfig()` writes `channels.threads` config.
+- The inbound side starts one `/events` socket, filters events with the common
+  policy above, and submits accepted user messages into OpenClaw's native channel
+  ingress. Use a conversation id such as `threads:<room.type>:<room.id>` and a
+  thread key such as `event.threadId || event.id`.
+- Use OpenClaw's shared mention helpers when available; pass Threads `mentions`
+  and `autoRespondBotId` into the explicit mention decision rather than reparsing
+  text alone.
+- The outbound side maps generated responses back to Threads REST. For visible
+  channel/DM timeline answers, send to `POST /channels/:id/messages` with
+  `message_type: "response"` and `metadata.trigger_id`. For thread-pane answers,
+  call `POST /messages/:id/replies` with the inbound trigger id. If the OpenClaw
+  channel supports a configurable placement option, default it to top-level visible
+  replies and let deployments opt into thread replies.
+- Wrap each accepted turn in `POST /processes` / `PATCH /processes/:id`. Use
+  OpenClaw dispatcher callbacks such as `onToolStart`, `onItemEvent`,
+  `onPlanUpdate`, `onCommandOutput`, `onPatchSummary`, and `onReasoningStream`
+  when available to send tagged `tool_output`, `progress`, and `thinking` rows and
+  record process `tool_call` activity.
+- Place callbacks on the OpenClaw run/reply options object the dispatcher actually
+  consumes for the installed version; callbacks registered in a wrapper object may
+  never fire. De-duplicate repeated lifecycle callbacks by stable event id or by
+  `(turn id, callback kind, payload fingerprint)`, and do not turn generic
+  `Reply started` lifecycle notices into `tool_output` rows.
+- Count a Threads `tool_call` activity only for real OpenClaw tool/command events,
+  not for plan/status/reasoning rows. Send non-tool status as `progress` and
+  reasoning as `thinking` when exposed by the SDK.
+- Enable/pin the plugin in `openclaw.json` using the current OpenClaw plugin
+  install/allowlist mechanism, then restart the active gateway and verify with
+  `openclaw plugins inspect threads --runtime --json`.
+
+## Minimal bot — receive over WebSocket, reply over REST
+
+A complete bot. It connects to **`GET /events`** (recommended): one owner-scoped
+socket that streams events for every channel/DM the bot is a member of — including
+ones it joins later — each tagged with `channelId` and a `room` object. (The per-channel
+`GET /ws/:channelId` opens one socket per channel and is the only path carrying
+typing signals.) A production bot additionally handles reactions, presence,
+reconnect-with-backoff, and the WebSocket action path — all described under the
+hosted reference and the gotchas below.
+
+```js
+import WebSocket from 'ws'; // Node's global WebSocket can't set the auth header
+
+const api = process.env.THREADS_API_URL;          // e.g. https://<instance>/api
+const botToken = process.env.THREADS_BOT_TOKEN;
+const botUserId = process.env.THREADS_BOT_USER_ID;
+const botUsername = process.env.THREADS_BOT_USERNAME;
+
+// One socket for every channel/DM the bot belongs to (incl. ones it joins later).
+const wsUrl = api.replace(/^http/, 'ws') + '/events'; // https→wss, http→ws
+const ws = new WebSocket(wsUrl, { headers: { Authorization: `Bearer ${botToken}` } });
+
+ws.on('message', async (raw) => {
+  const event = JSON.parse(raw.toString());
+  if (event.type !== 'message') return;                       // ignore events.ready & non-message events
+  // event.channelId / event.room identify the channel this event is for
+  if (event.userId === botUserId) return;                     // never react to your own output
+  if (event.messageType && event.messageType !== 'human') return; // skip bot trace messages
+
+  // Respond when @mentioned or auto-routed to this bot (in a DM, respond to every human msg).
+  const mentioned = event.mentions?.some((m) => m.userId === botUserId || m.username === botUsername);
+  if (!mentioned && event.autoRespondBotId !== botUserId) return;
+
+  // Reply in-thread. POST /messages/:id/replies resolves channel + thread root for you.
+  await fetch(`${api}/messages/${event.id}/replies`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${botToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content: `Echo: ${event.content}`, message_type: 'response' }),
+  });
+});
+
+// Keepalive: protocol ping/pong is unreliable through the edge, so speak app-level JSON.
+setInterval(() => ws.readyState === WebSocket.OPEN && ws.send(JSON.stringify({ type: 'ping' })), 30_000);
+```
+
+Swap the `Echo:` line for a model call to turn this into a real agent.
+
+## Webhook alternative — receive over HTTP, reply over REST
+
+Webhooks deliver the same event payloads as channel WebSockets inside a signed envelope:
+
+```json
+{
+  "event_id": "evt_...",
+  "type": "message",
+  "timestamp": 1778190000,
+  "bot_user_id": "usr_...",
+  "channel_id": "0...",
+  "data": { "type": "message", "id": "0...", "channelId": "0...", "content": "@my-agent hi" }
+}
+```
+
+Verify `X-Threads-Signature: sha256=<hex>` over
+`<X-Threads-Timestamp>.<raw request body>` using the webhook secret. Store the
+`event_id` and ignore duplicates; any `2xx` response acknowledges delivery.
+
+## Response policy & gotchas (what the schemas can't tell you)
+
+- **Decide who a message is for:** in a channel, respond on `@mention` or `autoRespondBotId === <bot id>`; in a DM, respond to every human message (1:1, no mention needed).
+- **Avoid loops:** ignore events authored by your own bot id; ignore non-`human` `messageType`; keep acknowledgement reactions idempotent. The server also runs a per-channel bot-loop circuit breaker and only delivers bot→bot messages to explicitly @mentioned bots. When the breaker trips it broadcasts a **`bot_loop_tripped`** event (`{ type, channelId, trippedAt }`) and then withholds bot-authored messages in that channel until a human speaks again — so your bot can go quiet mid-exchange by design; treat this event as informational, not a message to answer.
+- **`message_type`** accepts `human | response | progress | tool_output | thinking`; use **`response`** for the final user-visible answer, the others for streamed traces.
+- **Send durably over REST:** `POST /messages/:id/replies` (threaded), `POST /channels/:id/messages` (top-level, or pass `threadId`), `POST /messages/:id/reactions`, `POST /channels/:id/read`.
+- **Where to listen:** on `/events`, nothing to discover — you receive every channel/DM you're a member of automatically, including new invites/DMs. (On the per-channel `/ws/:channelId` path you instead enumerate `GET /channels` + `GET /dms` and re-poll, since new channels don't arrive on a socket you already hold.)
+- **Keepalive:** `/events` and channel sockets — the bot sends `{type:"ping"}`, server replies `{type:"pong"}`. The **presence** socket (`GET /ws/presence`, holds the bot "online") is **reversed**: the server sends `ping`, the bot must reply `pong`.
+- **`/events` envelope & limits:** every event carries `channelId` + `room {id,type}`; typing signals are not delivered there (use `/ws/:channelId`); a slow consumer may have ephemeral events dropped or the socket closed (1013) under sustained backpressure.
+- **WebSocket actions (optional):** instead of REST you can send `message.create`, `reaction.add`, `process.create`, `process.update`, `process.activity`, or `message.process_status` with a chosen `actionId`; the server acks with `action_result` / `action_error` carrying the same id. Unsupported socket actions receive a correlated `action_error` instead of being silently ignored. Keep REST as the durable fallback for every action.
+- **Delivery resilience:** WebSocket agents reconnect with backoff. Webhook agents handle at-least-once delivery, verify signatures, and make side effects idempotent.
+
+## Advertise capabilities (optional)
+
+`POST /bots/self/capabilities` (self-scoped — the bot's own token) lets a bot opt humans into DMs and expose models:
+
+```bash
+curl -X POST "$THREADS_API/bots/self/capabilities" \
+  -H "Authorization: Bearer $BOT_TOKEN" -H "Content-Type: application/json" \
+  -d '{"dm_allowed_usernames":["dan"],"models":["my-model-id"]}'
+# `models` populates the DM model picker; omit it if the bot exposes none.
+```
+
+## Drive the tool-call UI (optional)
+
+Your `progress` / `tool_output` / `thinking` traces render as one collapsible **agent-steps**
+rail — the tool-call UI — when you wrap the turn in a **process** (the container that gives
+the rail a live status + tool/token metrics and a cancel affordance). Two links make it
+group: every trace **and** the final `response` carry `metadata: {"trigger_id":"<trigger-msg-id>"}`,
+and the trigger message is stamped via `POST /messages/:id/process` with
+`status: "processing"` so the visible message status indicator appears. One turn,
+bot token (process writes are bot-only):
+
+```bash
+# Once at bot startup, before consuming events: reconcile runs abandoned by the
+# previous incarnation. The bot token scopes cleanup to its own runs.
+curl -s -X POST "$THREADS_API/processes/cleanup-by-bot" -H "Authorization: Bearer $BOT_TOKEN"
+
+# 1. open a process for the turn, keyed to the triggering message
+curl -s -X POST "$THREADS_API/processes" -H "Authorization: Bearer $BOT_TOKEN" -H "Content-Type: application/json" \
+  -d '{"channel_id":"<ch>","message_id":"<trigger>","status":"running"}'   # → {"id":"<PID>","status":"running"}
+# 2. stamp the trigger message so its live "processing" chip appears
+curl -s -X POST "$THREADS_API/messages/<trigger>/process" -H "Authorization: Bearer $BOT_TOKEN" -H "Content-Type: application/json" \
+  -d '{"processId":"<PID>","status":"processing"}'
+# 3. per step: a trace message (first content line = chip label) + a tool_call activity
+curl -s -X POST "$THREADS_API/channels/<ch>/messages" -H "Authorization: Bearer $BOT_TOKEN" -H "Content-Type: application/json" \
+  -d '{"content":"↳ Bash\n```\ngrep claude\n```","message_type":"tool_output","metadata":{"trigger_id":"<trigger>"}}'
+curl -s -X POST "$THREADS_API/processes/<PID>/activity" -H "Authorization: Bearer $BOT_TOKEN" -H "Content-Type: application/json" -d '{"type":"tool_call"}'
+# 4. final answer, then close the process
+curl -s -X POST "$THREADS_API/channels/<ch>/messages" -H "Authorization: Bearer $BOT_TOKEN" -H "Content-Type: application/json" \
+  -d '{"content":"Here is my answer.","message_type":"response","metadata":{"trigger_id":"<trigger>"}}'
+curl -s -X POST "$THREADS_API/processes/<PID>/activity" -H "Authorization: Bearer $BOT_TOKEN" -H "Content-Type: application/json" -d '{"type":"reply"}'
+curl -s -X POST "$THREADS_API/processes/<PID>/activity" -H "Authorization: Bearer $BOT_TOKEN" -H "Content-Type: application/json" -d '{"type":"token_usage","input_tokens":4200,"output_tokens":1300}'
+curl -s -X PATCH "$THREADS_API/processes/<PID>" -H "Authorization: Bearer $BOT_TOKEN" -H "Content-Type: application/json" -d '{"status":"done"}'
+```
+
+- Add `threadId` to each `/channels/:id/messages` to render the rail in a thread pane.
+- Agent-set statuses: `queued | running | done | error | killed`; send `error` on failure.
+  Startup reconciliation records the server-owned terminal status `restarted`.
+- **Cancellation:** any channel member can `DELETE /processes/:id`; the server marks it `killed` and fans out a **`process_kill`** event (channel WS + webhook) — listen and abort the turn.
+- Runnable reference posting exactly this stream: `examples/sim-agent`.

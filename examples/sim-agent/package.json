@@ -1,0 +1,12 @@
+{
+  "name": "threads-sim-agent",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Fake agent that streams the bridge's tool-call UI data to a deployed Threads instance — no real agent or bridge required.",
+  "scripts": {
+    "start": "./run.sh",
+    "listen": "node sim-agent-run.mjs --listen",
+    "one-shot": "node sim-agent-run.mjs"
+  }
+}

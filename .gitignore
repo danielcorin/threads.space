@@ -1,0 +1,28 @@
+node_modules/
+.svelte-kit/
+# direnv cache
+.direnv/
+
+# npm is the package manager; don't let stray bun/pnpm lockfiles back in
+bun.lock
+bun.lockb
+pnpm-lock.yaml
+.wrangler/
+dist/
+build/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+!.dev.vars.example
+!client/.env.production
+.DS_Store
+
+# Reproducible OpenAPI generated artifacts (do not commit)
+api/generated/
+api/.venv-openapi/
+
+# Project-local Codex MCP credentials (may contain a bearer token)
+.codex/config.toml
+examples/agent-containers/

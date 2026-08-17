@@ -1,0 +1,15 @@
+# Generate with: openssl rand -base64 32
+#
+# This is the only required secret. It protects stored credentials, encrypts
+# authenticator secrets, and bootstraps the first administrator. On a fresh
+# instance, sign in as `admin` with this value, then change the password.
+INSTANCE_SECRET=
+
+# Optional integrations. Threads runs without them.
+RESEND_API_KEY=
+AUTH_EMAIL_FROM=
+FEEDBACK_EMAIL_TO=
+FEEDBACK_EMAIL_FROM=
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=

@@ -1,0 +1,66 @@
+name = "threads-local-api"
+main = "src/index.ts"
+# Bumped past 2026-04-07 to enable web_socket_auto_reply_to_close: dead WS
+# sockets complete the close handshake fast (CLOSING→CLOSED) instead of lingering
+# half-closed and accumulating as zombies. See presence-room.ts keepalive notes.
+compatibility_date = "2026-05-01"
+
+# This API-only config exists for local development and the integration test
+# harness. Production uses the combined client + API config at ../wrangler.jsonc.
+workers_dev = true
+
+[vars]
+ENVIRONMENT = "development"
+# Local-only default used by seed-local.mjs and credential verification. A
+# value in api/.dev.vars overrides it. Production uses the root Worker secret.
+INSTANCE_SECRET = "threads-local-development-instance-secret"
+
+[observability]
+enabled = true
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 0.05
+
+[[d1_databases]]
+binding = "DB"
+database_name = "threads"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+[[r2_buckets]]
+binding = "UPLOADS"
+bucket_name = "threads-local-uploads"
+
+# Workers AI: powers voice-to-text transcription (POST /transcribe -> Whisper).
+# In `wrangler dev` this proxies to the real Workers AI API (needs auth); the
+# vitest-pool-workers harness leaves env.AI undefined, which the handler treats
+# as "transcription unavailable" (501) rather than crashing.
+[ai]
+binding = "AI"
+
+[[durable_objects.bindings]]
+name = "CHAT_ROOM"
+class_name = "ChatRoom"
+
+[[durable_objects.bindings]]
+name = "PRESENCE_ROOM"
+class_name = "PresenceRoom"
+
+[[durable_objects.bindings]]
+name = "USER_EVENTS_ROOM"
+class_name = "UserEventsRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ChatRoom"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["PresenceRoom"]
+
+[[migrations]]
+tag = "v3"
+new_sqlite_classes = ["UserEventsRoom"]
+
+# No production routes, triggers, or variables belong here. Local secrets go in
+# api/.dev.vars; deployment secrets are configured against ../wrangler.jsonc.

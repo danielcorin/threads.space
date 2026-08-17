@@ -1,0 +1,41 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "threads-self-hosted",
+  "main": "./client/worker/combined.ts",
+  "compatibility_date": "2026-06-16",
+  "compatibility_flags": ["nodejs_compat", "assets_navigation_has_no_effect"],
+  "workers_dev": true,
+  "assets": {
+    "directory": "./client/.svelte-kit/cloudflare",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+  "observability": {
+    "enabled": true,
+    "traces": { "enabled": true, "head_sampling_rate": 0.05 }
+  },
+  "d1_databases": [
+    { "binding": "DB", "migrations_dir": "./api/migrations" }
+  ],
+  "r2_buckets": [
+    { "binding": "UPLOADS" }
+  ],
+  "analytics_engine_datasets": [
+    { "binding": "MESSAGE_ANALYTICS", "dataset": "threads_self_hosted_message_events" }
+  ],
+  "ai": { "binding": "AI" },
+  "durable_objects": {
+    "bindings": [
+      { "name": "CHAT_ROOM", "class_name": "ChatRoom" },
+      { "name": "PRESENCE_ROOM", "class_name": "PresenceRoom" },
+      { "name": "USER_EVENTS_ROOM", "class_name": "UserEventsRoom" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["ChatRoom"] },
+    { "tag": "v2", "new_sqlite_classes": ["PresenceRoom"] },
+    { "tag": "v3", "new_sqlite_classes": ["UserEventsRoom"] }
+  ],
+  "triggers": { "crons": ["* * * * *"] },
+  "vars": { "ENVIRONMENT": "production" }
+}

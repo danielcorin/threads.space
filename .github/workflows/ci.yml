@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  quality:
+    name: Root lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm audit --omit=dev
+      - run: npm run lint
+
+  bridge:
+    name: Go bridge format, tests, vet, and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: agent-tools/bridge/go.mod
+          cache-dependency-path: agent-tools/bridge/go.sum
+      - name: Check Go formatting
+        run: |
+          files=$(gofmt -l .)
+          test -z "$files" || {
+            echo "$files"
+            exit 1
+          }
+        working-directory: agent-tools/bridge
+      - run: npm --prefix agent-tools run check:bridge
+      - run: go build ./cmd/threads-agent-bridge
+        working-directory: agent-tools/bridge
+
+  contract:
+    name: OpenAPI / agent tools contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm run check:precommit:test
+      - run: npm run openapi:check
+        working-directory: api
+        timeout-minutes: 10
+      - run: npm run check
+        working-directory: agent-tools/cli
+      - run: npm run api:contract:build
+      - name: Upload versioned API contract
+        uses: actions/upload-artifact@v4
+        with:
+          name: threads-api-contract-${{ github.sha }}
+          path: dist/api-contract
+          if-no-files-found: error
+
+  api:
+    name: API tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      - run: npm test
+        working-directory: api
+        timeout-minutes: 10
+
+  client:
+    name: Client check/build/tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - run: npm ci
+      # The client imports the OpenAPI-generated types (gitignored artifact)
+      - run: npm run openapi:types
+        working-directory: api
+      - run: npm run check
+        working-directory: client
+      # Builds both SvelteKit and the combined client+API Worker, including /mcp.
+      - run: npm run build:worker
+        working-directory: client
+      - run: npx playwright install --with-deps chromium
+        working-directory: client
+      - run: npm run test:unit
+        working-directory: client

@@ -1,0 +1,85 @@
+{
+  "name": "threads",
+  "private": true,
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Threads: a Slack-like collaboration app and multiplayer agent platform.",
+  "workspaces": [
+    "api",
+    "agent-tools/cli",
+    "client"
+  ],
+  "scripts": {
+    "install:all": "npm ci",
+    "dev:api": "npm --prefix api run dev",
+    "dev:client": "npm --prefix client run dev",
+    "check": "npm --prefix client run check",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "build": "npm --prefix client run build:worker",
+    "test": "npm --prefix api test && npm --prefix client run test:unit",
+    "check:local": "scripts/validate-and-deploy.sh --checks-only",
+    "check:threads": "npm run lint && npm --prefix api test && npm --prefix api run openapi:check && npm --prefix agent-tools/cli run check && npm run check:bridge && npm --prefix client run check && npm --prefix client run test:unit",
+    "check:bridge": "npm --prefix agent-tools run check:bridge",
+    "api:contract:validate": "npm --prefix api run api:contract:validate",
+    "api:contract:build": "node api/scripts/build-contract.mjs",
+    "api:contract:test": "node --test scripts/artifact-metadata.test.mjs api/scripts/build-contract.test.mjs",
+    "api:contract:check": "npm run api:contract:validate && npm run api:contract:test && npm run api:contract:build",
+    "cli:artifacts:build": "npm --prefix agent-tools/cli run artifact:build --",
+    "threads": "npm --prefix agent-tools/cli run build --silent && node agent-tools/cli/dist/cli.js",
+    "deploy:local": "scripts/validate-and-deploy.sh",
+    "deploy": "npm run build && wrangler deploy && npm run db:migrate:remote",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "security:fuzz": "node security/fuzz.mjs",
+    "prepare": "husky",
+    "check:precommit": "node scripts/check-precommit.mjs",
+    "check:precommit:test": "node --test scripts/check-precommit.test.mjs"
+  },
+  "cloudflare": {
+    "bindings": {
+      "INSTANCE_SECRET": {
+        "description": "Required. Generate a stable secret with `openssl rand -base64 32`. On a new instance, sign in as `admin` with this value, then change the password."
+      },
+      "RESEND_API_KEY": {
+        "description": "Optional. Resend API key for verification, invitation, and feedback email delivery."
+      },
+      "AUTH_EMAIL_FROM": {
+        "description": "Optional. Verified sender address for account email, for example `Threads <threads@example.com>`."
+      },
+      "FEEDBACK_EMAIL_TO": {
+        "description": "Optional. Instance-owned destination for feedback email. Feedback stays in Threads when omitted."
+      },
+      "FEEDBACK_EMAIL_FROM": {
+        "description": "Optional. Verified sender address for feedback email."
+      },
+      "VAPID_PUBLIC_KEY": {
+        "description": "Optional. Public VAPID key; omit to disable Web Push."
+      },
+      "VAPID_PRIVATE_KEY": {
+        "description": "Optional. Private VAPID key; omit to disable Web Push."
+      },
+      "VAPID_SUBJECT": {
+        "description": "Optional. VAPID contact URI such as `mailto:admin@example.com`."
+      }
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@vitest/browser": "4.1.10",
+    "@vitest/browser-playwright": "4.1.10",
+    "vite": "^7.3.5",
+    "eslint": "^10.4.1",
+    "eslint-plugin-svelte": "^3.19.0",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "svelte": "^5.56.3",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.60.1",
+    "vitest": "4.1.10",
+    "wrangler": "^4.123.0"
+  },
+  "overrides": {
+    "esbuild": "^0.28.2"
+  }
+}

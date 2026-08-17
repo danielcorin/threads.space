@@ -1,0 +1,12 @@
+{
+  "name": "threads-api-contract",
+  "version": "0.0.1",
+  "files": {
+    "contracts/threads.json": {
+      "sha256": "cd4152d399b28c9dec8f378c6041b8b88f3bfbcf049226a5029204722f32a986"
+    },
+    "contracts/ws-events.yaml": {
+      "sha256": "4c1074f4a3dd70ae5050d7e59ea9eeb4c002533ff0e0d78ba208f1ad56aa6b68"
+    }
+  }
+}
