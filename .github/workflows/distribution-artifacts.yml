@@ -110,11 +110,11 @@ jobs:
           test "$GITHUB_REF_NAME" = "v${package_version}"
           test "$GITHUB_REF_NAME" = "v${cli_version}"
           test "$GITHUB_REF_NAME" = "$discovery_version"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: threads-api-contract-${{ github.sha }}
           path: dist/contract
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: threads-cli-*-${{ github.sha }}
           path: dist/cli
