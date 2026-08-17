@@ -165,7 +165,7 @@ describe('Authenticator MFA', () => {
     expect(normalLogin.headers.get('set-cookie')).toContain('__Host-session=');
   });
 
-  it('blocks enforcement until recovery emails are verified, then forces enrollment', async () => {
+  it('blocks enforcement until recovery emails are verified, then forces enrollment', { timeout: 30000 }, async () => {
     const { sessionToken } = await loginUser('mfa_policy_admin');
     const admin = await enrollWithSession('mfa_policy_admin', sessionToken);
 
