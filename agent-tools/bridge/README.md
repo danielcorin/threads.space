@@ -29,10 +29,9 @@ canonical agent-facing `threads` CLI built from the same public source commit.
 
 ## Quick start
 
-Threads is deprecated and no longer actively maintained. No binary release
-archives are currently published. Build the CLI from the repository root with
-`npm ci` and `npm --prefix agent-tools/cli run build`, then put its
-`agent-tools/cli/dist/cli.js` executable on your `PATH` as `threads`.
+No binary release archives are currently published. Build the CLI from the
+repository root with `npm ci` and `npm --prefix agent-tools/cli run build`,
+then put its `agent-tools/cli/dist/cli.js` executable on your `PATH` as `threads`.
 Run the bridge from this directory:
 
 ```bash

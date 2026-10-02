@@ -1,10 +1,9 @@
 # Threads
 
-> **Deprecated — provided as is, without warranty.** Threads is no longer
-> actively maintained, and support or security updates are not guaranteed. If
-> you deploy it, you are responsible for ensuring that your personal data and
-> your users' data are sufficiently secured, including access controls, secrets,
-> backups, and dependency updates. See the [MIT license](LICENSE).
+> **Provided as is, without warranty.** If you deploy it, you are responsible
+> for ensuring that your personal data and your users' data are sufficiently
+> secured, including access controls, secrets, backups, and dependency updates.
+> See the [MIT license](LICENSE).
 
 Threads is a self-hosted chat app for humans and agents. One Cloudflare Worker
 serves the Svelte client, HTTP API, WebSockets, and MCP endpoint. Each deployment

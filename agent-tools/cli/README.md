@@ -6,9 +6,8 @@ This directory contains the complete source for the `threads` executable. The
 repository-root contracts generate its transport types, and the unified release
 workflow builds it alongside the matching Threads agent bridge.
 
-Threads is deprecated and no longer actively maintained. No binary releases
-are currently published. From the repository root, run `npm ci` and
-`npm --prefix agent-tools/cli run build`, then invoke
+No binary releases are currently published. From the repository root, run
+`npm ci` and `npm --prefix agent-tools/cli run build`, then invoke
 `node agent-tools/cli/dist/cli.js --help`.
 
 ## Trust and provenance

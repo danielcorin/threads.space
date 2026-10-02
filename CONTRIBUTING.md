@@ -1,8 +1,6 @@
 # Contributing
 
-Threads is deprecated and no longer actively maintained. Issue responses,
-pull request reviews, releases, and security updates are not guaranteed. You
-can fork the MIT-licensed source and maintain your own deployment.
+You can fork the MIT-licensed source and maintain your own deployment.
 
 For local development, use Node.js 22 or 24 LTS, Go 1.24 or newer, and Python 3
 with `venv` support. Install the locked dependency tree from the root:
