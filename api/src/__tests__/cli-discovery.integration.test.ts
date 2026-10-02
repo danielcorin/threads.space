@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BASE_URL } from './helpers.js';
 
 describe('public CLI discovery', () => {
-  it('links the running instance contract to auditable public CLI source', async () => {
+  it('links the running instance contract to source without advertising unpublished artifacts', async () => {
     const response = await fetch(`${BASE_URL}/cli.json`);
 
     expect(response.status).toBe(200);
@@ -18,17 +18,17 @@ describe('public CLI discovery', () => {
       },
       tools: {
         version: 'v0.2.2',
-        source: 'https://github.com/danielcorin/threads.space/tree/v0.2.2/agent-tools',
-        release: 'https://github.com/danielcorin/threads.space/releases/tag/v0.2.2',
-        manifest: 'https://github.com/danielcorin/threads.space/releases/download/v0.2.2/threads-agent-tools-manifest.json',
+        source: 'https://github.com/danielcorin/threads.space/tree/main/agent-tools',
+        release: null,
+        manifest: null,
         cli: {
-          checksums: 'https://github.com/danielcorin/threads.space/releases/download/v0.2.2/THREADS_CLI_SHA256SUMS',
+          checksums: null,
         },
         bridge: {
-          checksums: 'https://github.com/danielcorin/threads.space/releases/download/v0.2.2/THREADS_AGENT_BRIDGE_SHA256SUMS',
+          checksums: null,
         },
         contracts: {
-          checksums: 'https://github.com/danielcorin/threads.space/releases/download/v0.2.2/THREADS_CONTRACT_SHA256SUMS',
+          checksums: null,
         },
       },
     });

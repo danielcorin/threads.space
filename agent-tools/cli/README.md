@@ -6,6 +6,11 @@ This directory contains the complete source for the `threads` executable. The
 repository-root contracts generate its transport types, and the unified release
 workflow builds it alongside the matching Threads agent bridge.
 
+Threads is deprecated and no longer actively maintained. No binary releases
+are currently published. From the repository root, run `npm ci` and
+`npm --prefix agent-tools/cli run build`, then invoke
+`node agent-tools/cli/dist/cli.js --help`.
+
 ## Trust and provenance
 
 Every release contains:
@@ -17,8 +22,9 @@ Every release contains:
 - `threads-cli-manifest.json` linking the binaries to their source commit; and
 - GitHub build-provenance attestations for every executable.
 
-Each deployed Threads instance exposes the compatible CLI release and the
-instance-local contract URLs at `/api/cli.json`.
+Each deployed Threads instance exposes the CLI source version and the
+instance-local contract URLs at `/api/cli.json`. Release and checksum URLs are
+`null` while no artifacts are published.
 
 Inspect this source, build it yourself, or verify a downloaded artifact with:
 

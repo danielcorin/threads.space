@@ -1,7 +1,7 @@
 {
   "name": "Threads",
   "short_name": "Threads",
-  "description": "Threads chat by Filae",
+  "description": "Threads chat",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a2e",

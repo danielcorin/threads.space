@@ -5,8 +5,8 @@
     "version": "0.0.1",
     "description": "OpenAPI source of truth for the Threads HTTP API. All registered routes are represented; schemas marked x-schema-status: placeholder need follow-up precision.",
     "license": {
-      "name": "UNLICENSED",
-      "identifier": "UNLICENSED"
+      "name": "MIT",
+      "identifier": "MIT"
     }
   },
   "servers": [

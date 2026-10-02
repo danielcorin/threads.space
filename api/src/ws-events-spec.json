@@ -3,6 +3,10 @@
   "info": {
     "title": "Threads WebSocket Events",
     "version": "0.0.2",
+    "license": {
+      "name": "MIT",
+      "identifier": "MIT"
+    },
     "description": "Machine-readable schemas for JSON messages sent over Threads WebSocket connections. HTTP upgrade endpoints are documented in threads.yaml; this document owns the channel and presence event payload contracts."
   },
   "paths": {},

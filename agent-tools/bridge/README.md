@@ -29,9 +29,11 @@ canonical agent-facing `threads` CLI built from the same public source commit.
 
 ## Quick start
 
-Download a release archive for your OS/arch from
-[GitHub Releases](https://github.com/danielcorin/threads.space/releases),
-or run from this directory:
+Threads is deprecated and no longer actively maintained. No binary release
+archives are currently published. Build the CLI from the repository root with
+`npm ci` and `npm --prefix agent-tools/cli run build`, then put its
+`agent-tools/cli/dist/cli.js` executable on your `PATH` as `threads`.
+Run the bridge from this directory:
 
 ```bash
 cp config.example.json config.json
@@ -45,8 +47,8 @@ Build the daemon locally:
 go build -o bin/threads-agent-bridge ./cmd/threads-agent-bridge
 ```
 
-The `threads` executable is implemented in [`../cli`](../cli). Install it as a
-standalone release artifact or use the copy bundled in each bridge archive.
+The `threads` executable is implemented in [`../cli`](../cli). See its build
+instructions above.
 
 ## Development
 

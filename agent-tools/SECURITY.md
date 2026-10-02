@@ -1,8 +1,9 @@
 # Security Policy
 
-Please do not open public issues for vulnerabilities or leaked credentials.
+Threads and its agent tools are deprecated and no longer actively maintained.
+There are no supported releases or guaranteed security updates.
 
-Use GitHub private vulnerability reporting for the parent `threads.space`
-repository.
-
-When sharing logs or configs, remove Threads API tokens, local agent credentials, session ids, and private channel/message contents.
+Follow the parent repository's [security policy](../SECURITY.md) for private
+vulnerability reporting. Please do not open public issues for vulnerabilities
+or leaked credentials. When sharing logs or configs, remove Threads API tokens,
+local agent credentials, session IDs, and private channel or message contents.

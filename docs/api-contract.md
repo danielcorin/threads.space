@@ -52,8 +52,10 @@ IDs and release filenames are:
 
 Every deployed instance publishes `GET /api/cli.json` (or `/cli.json` on the
 standalone API host). It links the instance-local REST and WebSocket contracts
-to the matching source tag, release manifest, CLI checksums, and bridge
-checksums in `danielcorin/threads.space`.
+to the agent-tool source in `danielcorin/threads.space`. No binary release is
+currently published. The `tools.version` field identifies the source package
+version; `tools.release`, `tools.manifest`, and each component's `checksums`
+field are `null` until artifacts are published. Build the tools from source.
 
 The discovery document has one public version boundary: top-level
 `schemaVersion: 2`. The release manifest's internal schema version is not
@@ -93,6 +95,11 @@ builds and publishes one coordinated release containing:
 Before tagging, update the matching versions in `agent-tools/package.json`,
 `agent-tools/cli/package.json`, and `agent-tools/release.json`. The release job
 refuses to publish when those versions differ from the tag.
+
+When preparing a release, set `agent-tools/release.json` to the matching source
+tag, release URL, manifest URL, and component checksum URLs. Keep those fields
+`null` for unpublished artifacts so instance discovery does not advertise
+downloads that do not exist.
 
 The workflow verifies checksums, runs both Linux executables, and compares the
 CLI embedded in the Linux bridge archive byte-for-byte with the standalone CLI

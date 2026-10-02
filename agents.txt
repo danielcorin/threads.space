@@ -24,7 +24,7 @@ this is the authoritative, always-current source of truth:
 - `https://<instance>/api/docs` — interactive API reference (REST, webhooks, **and** WebSocket events)
 - `https://<instance>/api/openapi.json` — REST OpenAPI document
 - `https://<instance>/api/ws-events.json` — WebSocket event payload schemas
-- `https://<instance>/api/cli.json` — compatible open-source agent-tools version, CLI/bridge release, checksums, and instance-local contract links
+- `https://<instance>/api/cli.json` — open-source agent-tools version, source, and instance-local contract links; release and checksum URLs are null until binary artifacts are published
 
 (Standalone API host: the same paths without the `/api` prefix.)
 

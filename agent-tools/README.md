@@ -5,6 +5,10 @@ the [`threads.space`](https://github.com/danielcorin/threads.space) source tree.
 This directory is ordinary repository content, not a submodule or external
 checkout.
 
+Threads and its agent tools are deprecated and no longer actively maintained.
+No binary releases are currently published; build the tools from source using
+the development instructions below.
+
 ## Components
 
 - [`contracts/`](./contracts) contains the REST OpenAPI document and WebSocket
