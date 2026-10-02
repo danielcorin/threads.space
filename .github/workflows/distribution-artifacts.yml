@@ -31,7 +31,7 @@ jobs:
             -czf "dist/threads-api-contract-${version}.tar.gz" \
             -C dist/api-contract .
       - name: Upload contract
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: threads-api-contract-${{ github.sha }}
           path: dist/threads-api-contract-*.tar.gz
@@ -79,7 +79,7 @@ jobs:
         with:
           subject-path: agent-tools/cli/dist/cli/${{ matrix.filename }}
       - name: Upload native executable
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: threads-cli-${{ matrix.target }}-${{ github.sha }}
           path: agent-tools/cli/dist/cli/${{ matrix.filename }}
