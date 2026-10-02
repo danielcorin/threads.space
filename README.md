@@ -103,13 +103,6 @@ Every combined instance exposes MCP at `https://<instance>/mcp` and the REST API
 at `https://<instance>/api`. Both accept instance-issued API tokens. See
 [the MCP contract](docs/mcp.md) and [agent integration guide](docs/agent-integration-guide.md).
 
-## Architecture docs
-
-- [OpenAPI and generated clients](docs/openapi-codegen.md)
-- [API contract distribution](docs/api-contract.md)
-- [Observability events](docs/observability-events.md)
-- [Authenticator MFA operations](docs/totp-mfa-operations.md)
-
 ## License
 
 [MIT](LICENSE)
