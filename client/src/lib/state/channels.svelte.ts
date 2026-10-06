@@ -92,7 +92,15 @@ export const channels = {
 
 	async createEphemeral() {
 		const result = (await api.channels.createEphemeral()) as Channel;
-		await this.load();
+		_channels = [..._channels.filter((channel) => channel.id !== result.id), {
+			...result,
+			processing_mode: result.processing_mode ?? 'immediate',
+			board_enabled: result.board_enabled ?? 0,
+			notifications: result.notifications ?? 'all',
+			has_unread: result.has_unread ?? 0,
+			unread_count: result.unread_count ?? 0,
+			last_read_message_id: result.last_read_message_id ?? null
+		}];
 		this.select(result.id);
 		return result;
 	},

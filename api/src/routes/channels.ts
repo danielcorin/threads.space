@@ -183,14 +183,18 @@ export async function handleCreateEphemeralChannel(request: Request, env: Env, u
       username: bot.username,
       displayName: bot.display_name,
     };
-    await publishChannelEvent(env, ctx, id, memberAddedEvent, {
-      webhooks: {
-        senderId: user.id,
-        senderRole: user.role,
-      },
-    });
-    notifyUsersViaPresence(env, [bot.id], memberAddedEvent);
-    await notifyBotViaRecentChannels(env, bot.id, id, memberAddedEvent);
+    const delivery = (async () => {
+      await publishChannelEvent(env, ctx, id, memberAddedEvent, {
+        webhooks: {
+          senderId: user.id,
+          senderRole: user.role,
+        },
+      });
+      notifyUsersViaPresence(env, [bot.id], memberAddedEvent);
+      await notifyBotViaRecentChannels(env, bot.id, id, memberAddedEvent);
+    })().catch((error) => console.error('Ephemeral channel notification failed:', error));
+    if (ctx) ctx.waitUntil(delivery);
+    else await delivery;
   }
 
   return jsonResponse({

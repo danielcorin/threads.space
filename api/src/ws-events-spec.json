@@ -1440,6 +1440,7 @@
       },
       "MemberAddedEvent": {
         "type": "object",
+        "description": "Ephemeral-channel bot membership notifications are delivered in background work after membership is persisted.",
         "required": [
           "type",
           "channelId",

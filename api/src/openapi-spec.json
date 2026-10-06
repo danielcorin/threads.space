@@ -3947,7 +3947,7 @@
           "channels"
         ],
         "summary": "Create ephemeral channel",
-        "description": "Create a private ephemeral channel for the authenticated user, optionally adding the Tela bot as the auto-responder when that bot account exists.",
+        "description": "Create a private ephemeral channel for the authenticated user, optionally adding their configured ephemeral bot as the auto-responder. Returns once the channel and memberships are persisted; bot notifications continue in the background.",
         "parameters": [],
         "responses": {
           "201": {
