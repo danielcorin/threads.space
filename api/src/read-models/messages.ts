@@ -81,6 +81,8 @@ const MESSAGE_WITH_CHANNEL_SELECT_COLS = MESSAGE_SELECT_COLS.replace(
   'SELECT m.*, c.name as channel_name, c.is_dm as is_dm,'
 );
 
+const CONVERSATION_FILTER = " AND COALESCE(m.message_type, 'human') NOT IN ('progress', 'tool_output', 'thinking')";
+
 export interface MessagePage {
   messages: any[];
   cursor?: string | null;
@@ -101,19 +103,22 @@ export function clampLimit(limit: number | undefined | null): number {
 export class MessageReadModel {
   constructor(private readonly env: Env) {}
 
-  async listChannelMessages(channelId: string, options: { cursor?: string | null; around?: string | null; after?: string | null; limit?: number }): Promise<MessagePage> {
+  async listChannelMessages(channelId: string, options: { cursor?: string | null; around?: string | null; after?: string | null; limit?: number; view?: string | null }): Promise<MessagePage> {
     const limit = clampLimit(options.limit);
+    const conversation = options.view === 'conversation';
 
     if (options.around) {
-      return this.listChannelMessagesAround(channelId, options.around, limit);
+      const page = await this.listChannelMessagesAround(channelId, options.around, limit, conversation);
+      return conversation ? this.includeChannelSteps(channelId, page) : page;
     }
 
     if (options.after) {
-      return this.listChannelMessagesAfter(channelId, options.after, limit);
+      const page = await this.listChannelMessagesAfter(channelId, options.after, limit, conversation);
+      return conversation ? this.includeChannelSteps(channelId, page, { after: options.after }) : page;
     }
 
     let query = `${MESSAGE_SELECT_COLS}
-      WHERE m.channel_id = ? AND m.thread_id IS NULL
+      WHERE m.channel_id = ? AND m.thread_id IS NULL${conversation ? CONVERSATION_FILTER : ''}
     `;
     const params: any[] = [channelId];
 
@@ -128,10 +133,31 @@ export class MessageReadModel {
     const messages = await this.env.DB.prepare(query).bind(...params).all<any>();
     const results = messages.results.map(parseMessageRow);
 
-    return {
+    const page = {
       messages: results.reverse(),
       cursor: results.length === limit ? results[0]?.id : null,
     };
+    return conversation ? this.includeChannelSteps(channelId, page, { before: options.cursor }) : page;
+  }
+
+  /** Keep trace rows in the loaded time window without counting them toward the conversation page size. */
+  private async includeChannelSteps(channelId: string, page: MessagePage, bounds: { before?: string | null; after?: string | null } = {}): Promise<MessagePage> {
+    const lower = bounds.after ?? page.messages[0]?.id;
+    if (!lower) return page;
+    const upper = bounds.before ?? (page.hasNewer ? page.messages[page.messages.length - 1]?.id : null);
+    let query = `${MESSAGE_SELECT_COLS}
+      WHERE m.channel_id = ? AND m.thread_id IS NULL AND m.deleted_at IS NULL
+        AND m.message_type IN ('progress', 'tool_output', 'thinking') AND m.id > ?`;
+    const params: string[] = [channelId, lower];
+    if (upper) {
+      query += ' AND m.id < ?';
+      params.push(upper);
+    }
+    query += ' ORDER BY m.id ASC';
+    const steps = await this.env.DB.prepare(query).bind(...params).all<any>();
+    const combined = new Map(page.messages.map((message) => [message.id, message]));
+    for (const step of steps.results) combined.set(step.id, parseMessageRow(step));
+    return { ...page, messages: [...combined.values()].sort((a, b) => a.id.localeCompare(b.id)) };
   }
 
   async listThreadReplies(messageId: string, options: { cursor?: string | null; before?: string | null; around?: string | null; after?: string | null; latest?: boolean; limit?: number }): Promise<MessagePage> {
@@ -240,37 +266,38 @@ export class MessageReadModel {
     };
   }
 
-  private async listChannelMessagesAround(channelId: string, around: string, limit: number): Promise<MessagePage> {
+  private async listChannelMessagesAround(channelId: string, around: string, limit: number, conversation = false): Promise<MessagePage> {
     const anchorExists = await this.env.DB.prepare(
       'SELECT id FROM messages WHERE id = ? AND channel_id = ? AND thread_id IS NULL AND deleted_at IS NULL'
     ).bind(around, channelId).first();
 
     if (!anchorExists) {
-      return this.listChannelMessages(channelId, { limit });
+      return this.listChannelMessages(channelId, { limit, view: conversation ? 'conversation' : undefined });
     }
 
     const half = Math.floor(limit / 2);
+    const afterLimit = limit - half;
 
     const beforeQuery = `${MESSAGE_SELECT_COLS}
-      WHERE m.channel_id = ? AND m.thread_id IS NULL
+      WHERE m.channel_id = ? AND m.thread_id IS NULL${conversation ? CONVERSATION_FILTER : ''}
         AND (m.deleted_at IS NULL OR m.type = 'system')
         AND m.id < ?
       ORDER BY m.id DESC LIMIT ?`;
     const beforeRows = await this.env.DB.prepare(beforeQuery).bind(channelId, around, half).all<any>();
 
     const afterQuery = `${MESSAGE_SELECT_COLS}
-      WHERE m.channel_id = ? AND m.thread_id IS NULL
+      WHERE m.channel_id = ? AND m.thread_id IS NULL${conversation ? CONVERSATION_FILTER : ''}
         AND (m.deleted_at IS NULL OR m.type = 'system')
         AND m.id >= ?
       ORDER BY m.id ASC LIMIT ?`;
-    const afterRows = await this.env.DB.prepare(afterQuery).bind(channelId, around, half).all<any>();
+    const afterRows = await this.env.DB.prepare(afterQuery).bind(channelId, around, afterLimit).all<any>();
 
     const beforeResults = beforeRows.results.map(parseMessageRow).reverse();
     const afterResults = afterRows.results.map(parseMessageRow);
     const combined = [...beforeResults, ...afterResults];
 
-    const hasBefore = beforeResults.length === half;
-    const hasAfter = afterResults.length === half;
+    const hasBefore = half > 0 && beforeResults.length === half;
+    const hasAfter = afterResults.length === afterLimit;
 
     return {
       messages: combined,
@@ -280,9 +307,9 @@ export class MessageReadModel {
     };
   }
 
-  private async listChannelMessagesAfter(channelId: string, after: string, limit: number): Promise<MessagePage> {
+  private async listChannelMessagesAfter(channelId: string, after: string, limit: number, conversation = false): Promise<MessagePage> {
     const afterQuery = `${MESSAGE_SELECT_COLS}
-      WHERE m.channel_id = ? AND m.thread_id IS NULL
+      WHERE m.channel_id = ? AND m.thread_id IS NULL${conversation ? CONVERSATION_FILTER : ''}
         AND (m.deleted_at IS NULL OR m.type = 'system')
         AND m.id > ?
       ORDER BY m.id ASC LIMIT ?`;

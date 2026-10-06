@@ -2782,7 +2782,7 @@
           "channels"
         ],
         "summary": "GET /channels/:id/messages",
-        "description": "List non-thread messages in a channel. Supports cursor pagination, fetching newer messages, and anchoring around a message id.",
+        "description": "List non-thread messages in a channel. Supports cursor pagination, fetching newer messages, and anchoring around a message id. With view=conversation, limit counts non-step messages; progress, tool_output, and thinking rows in the same time window are included without consuming page slots. Cursors remain anchored to non-step messages.",
         "parameters": [
           {
             "name": "id",
@@ -2817,6 +2817,17 @@
             "description": "Return messages newer than this message id.",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "view",
+            "in": "query",
+            "required": false,
+            "description": "Use conversation to count visible conversation messages while retaining their agent steps. The default all view counts every non-thread row.",
+            "schema": {
+              "type": "string",
+              "enum": ["all", "conversation"],
+              "default": "all"
             }
           },
           {

@@ -20,6 +20,7 @@ export async function handleListMessages(env: Env, user: User, channelId: string
     around: url.searchParams.get('around'),
     after: url.searchParams.get('after'),
     limit: parseInt(url.searchParams.get('limit') ?? '50'),
+    view: url.searchParams.get('view'),
   }));
 }
 

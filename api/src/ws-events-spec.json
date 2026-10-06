@@ -1010,6 +1010,7 @@
       },
       "MessageEvent": {
         "type": "object",
+        "description": "Live messages include agent step rows. HTTP conversation pages retain these rows without counting them toward the visible-message page size.",
         "required": [
           "type",
           "id",

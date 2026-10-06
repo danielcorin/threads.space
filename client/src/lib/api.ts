@@ -251,12 +251,12 @@ export const api = {
 		messages: {
 		list: (channelId: string, cursor?: string) =>
 			request<ApiMessagePage>(
-				`/channels/${channelId}/messages${cursor ? `?cursor=${cursor}` : ''}`
+				`/channels/${channelId}/messages?view=conversation${cursor ? `&cursor=${cursor}` : ''}`
 			),
 		listAround: (channelId: string, around: string) =>
-			request<ApiMessagePage>(`/channels/${channelId}/messages?around=${around}`),
+			request<ApiMessagePage>(`/channels/${channelId}/messages?view=conversation&around=${around}`),
 		listAfter: (channelId: string, after: string) =>
-			request<ApiMessagePage>(`/channels/${channelId}/messages?after=${after}`),
+			request<ApiMessagePage>(`/channels/${channelId}/messages?view=conversation&after=${after}`),
 		send: (
 			channelId: string,
 			content: string,
