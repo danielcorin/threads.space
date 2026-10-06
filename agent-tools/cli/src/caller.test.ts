@@ -148,6 +148,19 @@ describe('caller action contract', () => {
     expect(request.headers.get('Authorization')).toBe('Bearer top-secret');
   });
 
+  it.each([
+    ['unarchive_ephemeral_channel', '/channels/channel-1/archive', 'DELETE', { ok: true, archived_at: null }],
+    ['regenerate_ephemeral_name', '/channels/channel-1/regenerate-name', 'POST', { ok: true, auto_named_at: null }],
+  ] as const)('preserves required null fields for %s', async (action, path, method, response) => {
+    const fetchMock = vi.fn(async () => json(response));
+    const caller = createCaller({ baseUrl: 'https://example.test/api', token: 'secret', fetch: fetchMock as any });
+
+    await expect(caller.run(action, { channel_id: 'channel-1' })).resolves.toEqual(response);
+    const request = (fetchMock.mock.calls as any[][])[0][0] as Request;
+    expect(request.url).toBe(`https://example.test/api${path}`);
+    expect(request.method).toBe(method);
+  });
+
   it('composes goal-level actions from multiple API operations', async () => {
     const fetchMock = vi.fn(async (request: Request) => {
       const path = new URL(request.url).pathname;

@@ -313,9 +313,11 @@ export class ThreadsApiClient {
   }
 
   async unarchiveEphemeralChannel(channelId: string): Promise<Schemas['EphemeralUnarchiveResponse']> {
+    // openapi-fetch 0.17's Readable type drops null-only properties. Preserve
+    // the wire schema here; the caller validates the response against it.
     return unwrap(await this.#client.DELETE('/channels/{id}/archive', {
       params: { path: { id: channelId } },
-    }));
+    })) as Schemas['EphemeralUnarchiveResponse'];
   }
 
   async renameEphemeralChannel(channelId: string, slug: string): Promise<Schemas['EphemeralRenameResponse']> {
@@ -333,9 +335,10 @@ export class ThreadsApiClient {
   }
 
   async regenerateEphemeralName(channelId: string): Promise<Schemas['EphemeralRegenerateNameResponse']> {
+    // Readable also drops this response's required null-only auto_named_at.
     return unwrap(await this.#client.POST('/channels/{id}/regenerate-name', {
       params: { path: { id: channelId } },
-    }));
+    })) as Schemas['EphemeralRegenerateNameResponse'];
   }
 
   async uploadAttachment(
