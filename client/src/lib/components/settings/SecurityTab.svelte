@@ -10,6 +10,7 @@
 	import Field from '../ui/Field.svelte';
 	import Button from '../ui/Button.svelte';
 	import MfaCodeInput from './MfaCodeInput.svelte';
+	import MfaSetupKey from '../MfaSetupKey.svelte';
 
 	const isBot = $derived(auth.user?.role === 'bot');
 
@@ -399,10 +400,7 @@
 				{#if mfaQrCodeUrl}
 					<div class="flex justify-center"><div class="rounded bg-white p-3"><img src={mfaQrCodeUrl} alt="Authenticator setup QR code" width="220" height="220" /></div></div>
 				{/if}
-				<div>
-					<div class="text-xs text-[var(--color-text-muted)] mb-1">Manual setup key</div>
-					<code class="block break-all rounded border border-[var(--color-border)] bg-[var(--color-bg-input)] p-2 text-xs select-all">{mfaSetup.secret}</code>
-				</div>
+				<MfaSetupKey secret={mfaSetup.secret} />
 				<MfaCodeInput id="mfa-confirm-code" label="6-digit code" bind:value={mfaCode} />
 				<div class="flex gap-2">
 					<Button variant="primary" onclick={confirmMfaEnrollment} disabled={mfaLoading || !/^\d{6}$/.test(mfaCode)}>

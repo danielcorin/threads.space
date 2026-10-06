@@ -5,6 +5,7 @@
 	import { normalizeMfaCode } from '$lib/mfa-code.js';
 	import { auth } from '$lib/state/auth.svelte.js';
 	import Spinner from './Spinner.svelte';
+	import MfaSetupKey from './MfaSetupKey.svelte';
 
 	type Step = 'credentials' | 'verify' | 'enroll';
 	let step = $state<Step>('credentials');
@@ -131,10 +132,7 @@
 							{#if qrCodeUrl}
 								<div class="flex justify-center rounded bg-white p-3"><img src={qrCodeUrl} alt="Authenticator setup QR code" width="220" height="220" /></div>
 							{/if}
-							<div>
-								<div class="text-xs text-[var(--color-text-muted)] mb-1">Can’t scan it? Enter this key manually:</div>
-								<code class="block break-all rounded border border-[var(--color-border)] bg-[var(--color-bg-input)] p-2 text-xs select-all">{setup.secret}</code>
-							</div>
+							<MfaSetupKey secret={setup.secret} />
 						</div>
 					{/if}
 
