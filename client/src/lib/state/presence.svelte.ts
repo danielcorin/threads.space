@@ -1,5 +1,7 @@
 import { API_BASE } from '$lib/api.js';
 import { websocketOrigin } from '$lib/ws-url.js';
+import { auth } from '$lib/state/auth.svelte.js';
+import { channels } from '$lib/state/channels.svelte.js';
 
 /** Reactive presence state — tracks which users are online via a dedicated WebSocket. */
 
@@ -63,6 +65,9 @@ export const presence = {
 				}
 				if (data.type === 'presence_update') {
 					_online = { ..._online, [data.userId]: data.online };
+				}
+				if (data.type === 'member_added' && data.targetUserId === auth.user?.id && typeof data.channelId === 'string') {
+					channels.ensureLoaded(data.channelId).catch((error) => console.error('Failed to sync channel membership:', error));
 				}
 			} catch {}
 		};

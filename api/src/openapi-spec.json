@@ -1812,7 +1812,7 @@
           "channels"
         ],
         "summary": "POST /channels",
-        "description": "Create a channel and add the authenticated user as its first member.",
+        "description": "Create a channel and add the authenticated user as its first member. Notify that user's devices with member_added over their presence sockets after persistence.",
         "parameters": [],
         "responses": {
           "201": {
@@ -2064,7 +2064,7 @@
           "channels"
         ],
         "summary": "POST /channels/:id/join",
-        "description": "Join a public channel, or rejoin one that the authenticated user previously left.",
+        "description": "Join a public channel, or rejoin one that the authenticated user previously left. A new or restored membership notifies that user's devices with member_added over their presence sockets.",
         "parameters": [
           {
             "name": "id",

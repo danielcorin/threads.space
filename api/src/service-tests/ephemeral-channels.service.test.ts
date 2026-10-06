@@ -29,10 +29,10 @@ it('returns the created channel while slow bot notification continues in the bac
     const members = await serviceEnv.DB.prepare('SELECT user_id FROM channel_members WHERE channel_id = ? ORDER BY user_id').bind(channel.id).all<{ user_id: string }>();
     expect(members.results.map((member) => member.user_id)).toEqual(['ephemeral-bot', 'ephemeral-human']);
     expect(broadcastMessage).toHaveBeenCalledOnce();
-    expect(sendToUsers).not.toHaveBeenCalled();
+    expect(sendToUsers).toHaveBeenCalledWith([actor.id], expect.objectContaining({ type: 'member_added', channelId: channel.id, targetUserId: actor.id }));
   } finally {
     release();
     await waitOnExecutionContext(ctx);
   }
-  expect(sendToUsers).toHaveBeenCalledOnce();
+  expect(sendToUsers).toHaveBeenCalledTimes(2);
 });

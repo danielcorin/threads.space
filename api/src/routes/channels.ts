@@ -5,10 +5,22 @@ import { publishChannelEvent, type ChannelEvent } from '../lib/channel-events.js
 import { FEEDBACK_CHANNEL_ID } from '../constants.js';
 
 /** Deliver a user-targeted event over the global PresenceRoom (one DO hop). */
-function notifyUsersViaPresence(env: Env, userIds: string[], event: Record<string, unknown>): void {
+function notifyUsersViaPresence(env: Env, userIds: string[], event: Record<string, unknown>, ctx?: ExecutionContext): void {
   if (userIds.length === 0) return;
   const room = env.PRESENCE_ROOM.get(env.PRESENCE_ROOM.idFromName('global'));
-  room.sendToUsers(userIds, event).catch(() => {});
+  const delivery = room.sendToUsers(userIds, event).catch((error) => console.error('Channel presence notification failed:', error));
+  ctx?.waitUntil(delivery);
+}
+
+/** Notify all of the actor's devices after a channel membership is committed. */
+function notifyMembershipAdded(env: Env, user: User, channelId: string, ctx?: ExecutionContext): void {
+  notifyUsersViaPresence(env, [user.id], {
+    type: 'member_added',
+    channelId,
+    targetUserId: user.id,
+    username: user.username,
+    displayName: user.display_name,
+  }, ctx);
 }
 
 /**
@@ -90,7 +102,7 @@ export async function handleBrowseChannels(env: Env, user: User): Promise<Respon
   return jsonResponse(channels.results);
 }
 
-export async function handleCreateChannel(request: Request, env: Env, user: User): Promise<Response> {
+export async function handleCreateChannel(request: Request, env: Env, user: User, ctx?: ExecutionContext): Promise<Response> {
   const { name, description, isPrivate } = await readJsonObject<{
     name: string;
     description?: string;
@@ -119,6 +131,7 @@ export async function handleCreateChannel(request: Request, env: Env, user: User
     throw e;
   }
 
+  notifyMembershipAdded(env, user, id, ctx);
   return jsonResponse({ id, name, description: description ?? null, isPrivate: isPrivate ?? false }, 201);
 }
 
@@ -171,6 +184,8 @@ export async function handleCreateEphemeralChannel(request: Request, env: Env, u
     throw e;
   }
 
+  notifyMembershipAdded(env, user, id, ctx);
+
   // Broadcast member_added for the bot so its adapter connects to this channel's WS.
   // Without this, the bot won't know it's in the channel and won't respond to messages.
   // Delivered over the presence socket plus a bounded replay through its most
@@ -190,7 +205,7 @@ export async function handleCreateEphemeralChannel(request: Request, env: Env, u
           senderRole: user.role,
         },
       });
-      notifyUsersViaPresence(env, [bot.id], memberAddedEvent);
+      notifyUsersViaPresence(env, [bot.id], memberAddedEvent, ctx);
       await notifyBotViaRecentChannels(env, bot.id, id, memberAddedEvent);
     })().catch((error) => console.error('Ephemeral channel notification failed:', error));
     if (ctx) ctx.waitUntil(delivery);
@@ -471,7 +486,7 @@ export async function handleUpdateChannel(request: Request, env: Env, user: User
   return jsonResponse({ ok: true });
 }
 
-export async function handleJoinChannel(env: Env, user: User, channelId: string): Promise<Response> {
+export async function handleJoinChannel(env: Env, user: User, channelId: string, ctx?: ExecutionContext): Promise<Response> {
   // Check if channel is private
   const channel = await env.DB.prepare('SELECT is_private FROM channels WHERE id = ?')
     .bind(channelId).first<{ is_private: number }>();
@@ -491,6 +506,7 @@ export async function handleJoinChannel(env: Env, user: User, channelId: string)
       await env.DB.prepare(
         'UPDATE channel_members SET left_at = NULL WHERE channel_id = ? AND user_id = ?'
       ).bind(channelId, user.id).run();
+      notifyMembershipAdded(env, user, channelId, ctx);
     }
     return jsonResponse({ ok: true });
   }
@@ -502,6 +518,7 @@ export async function handleJoinChannel(env: Env, user: User, channelId: string)
     if (e.message?.includes('UNIQUE')) return jsonResponse({ ok: true }); // already a member
     throw e;
   }
+  notifyMembershipAdded(env, user, channelId, ctx);
   return jsonResponse({ ok: true });
 }
 

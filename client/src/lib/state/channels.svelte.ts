@@ -108,6 +108,8 @@ export const channels = {
 	async ensureLoaded(channelId: string) {
 		if (_channels.some((c) => c.id === channelId)) return;
 		const fetched = await api.channels.get(channelId);
+		// Another membership event or the create response can win while this fetch is in flight.
+		if (_channels.some((c) => c.id === channelId)) return;
 		// DM backing channels should never be inserted into the regular channel sidebar.
 		if (fetched.is_dm) return;
 		// GET /channels/:id returns the bare channel; fill the sidebar-only

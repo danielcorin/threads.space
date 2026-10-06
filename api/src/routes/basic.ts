@@ -262,11 +262,11 @@ export function registerBasicAuthenticatedRoutes(authed: ThreadsApp): void {
   // Channels
   authed.get('/channels', (c) => handleListChannels(c.env, c.get('user')));
   authed.get('/channels/browse', (c) => handleBrowseChannels(c.env, c.get('user')));
-  authed.post('/channels', (c) => handleCreateChannel(c.req.raw, c.env, c.get('user')));
+  authed.post('/channels', (c) => handleCreateChannel(c.req.raw, c.env, c.get('user'), c.executionCtx));
   authed.get('/channels/:id', (c) => handleGetChannel(c.env, c.get('user'), c.req.param('id')));
   authed.patch('/channels/:id', (c) => handleUpdateChannel(c.req.raw, c.env, c.get('user'), c.req.param('id')));
   authed.delete('/channels/:id', (c) => handleDeleteChannel(c.env, c.get('user'), c.req.param('id')));
-  authed.post('/channels/:id/join', (c) => handleJoinChannel(c.env, c.get('user'), c.req.param('id')));
+  authed.post('/channels/:id/join', (c) => handleJoinChannel(c.env, c.get('user'), c.req.param('id'), c.executionCtx));
   authed.post('/channels/:id/leave', (c) => handleLeaveChannel(c.env, c.get('user'), c.req.param('id')));
   authed.get('/channels/:id/members', (c) => handleListMembers(c.env, c.get('user'), c.req.param('id')));
   authed.post('/channels/:id/members', (c) => handleAddMember(c.req.raw, c.env, c.get('user'), c.req.param('id'), c.executionCtx));

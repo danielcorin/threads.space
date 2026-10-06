@@ -19,3 +19,17 @@ test('selects a new ephemeral channel without waiting for a channel-list request
 	expect(channels.selected).toMatchObject({ ...channel, notifications: 'all', has_unread: 0 });
 	expect(fetchMock).toHaveBeenCalledTimes(1);
 });
+
+test('does not duplicate a channel when membership discovery requests overlap', async () => {
+	let release!: () => void;
+	const gate = new Promise<void>((resolve) => { release = resolve; });
+	vi.stubGlobal('fetch', vi.fn(async () => {
+		await gate;
+		return new Response(JSON.stringify({ id: 'new-channel', name: 'new-channel', is_dm: 0 }));
+	}));
+	const first = channels.ensureLoaded('new-channel');
+	const second = channels.ensureLoaded('new-channel');
+	release();
+	await Promise.all([first, second]);
+	expect(channels.list.filter((channel) => channel.id === 'new-channel')).toHaveLength(1);
+});

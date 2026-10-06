@@ -1441,7 +1441,7 @@
       },
       "MemberAddedEvent": {
         "type": "object",
-        "description": "Ephemeral-channel bot membership notifications are delivered in background work after membership is persisted.",
+        "description": "Delivered to the affected user's presence sockets after channel creation, joining, or rejoining so every device can discover the membership. Ephemeral-channel bot membership notifications continue in background work.",
         "required": [
           "type",
           "channelId",
