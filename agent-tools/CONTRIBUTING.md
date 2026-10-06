@@ -1,6 +1,6 @@
 # Contributing
 
-Install Node.js 22+, Go 1.24+, and dependencies from the parent repository:
+Install Node.js 22+, Go 1.26+, and dependencies from the parent repository:
 
 ```bash
 cd ..

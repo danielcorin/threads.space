@@ -2,7 +2,7 @@
 
 You can fork the MIT-licensed source and maintain your own deployment.
 
-For local development, use Node.js 22 or 24 LTS, Go 1.24 or newer, and Python 3
+For local development, use Node.js 22 or 24 LTS, Go 1.26 or newer, and Python 3
 with `venv` support. Install the locked dependency tree from the root:
 
 ```bash
