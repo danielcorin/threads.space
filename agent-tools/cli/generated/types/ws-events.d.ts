@@ -288,6 +288,7 @@ export interface components {
             /** @description Error body or message returned by the failed action. */
             error: unknown;
         };
+        /** @description Live messages include agent step rows. HTTP conversation pages retain these rows without counting them toward the visible-message page size. */
         MessageEvent: {
             /**
              * @description discriminator enum property added by openapi-typescript
@@ -444,6 +445,7 @@ export interface components {
             type: "ChannelDeletedEvent";
             channelId: components["schemas"]["Id"];
         };
+        /** @description Delivered to the affected user's presence sockets after channel creation, joining, or rejoining so every device can discover the membership. Ephemeral-channel bot membership notifications continue in background work. */
         MemberAddedEvent: {
             /**
              * @description discriminator enum property added by openapi-typescript

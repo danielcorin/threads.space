@@ -710,7 +710,7 @@ export interface paths {
         put?: never;
         /**
          * POST /channels
-         * @description Create a channel and add the authenticated user as its first member.
+         * @description Create a channel and add the authenticated user as its first member. Notify that user's devices with member_added over their presence sockets after persistence.
          */
         post: operations["postChannels"];
         delete?: never;
@@ -778,7 +778,7 @@ export interface paths {
         put?: never;
         /**
          * POST /channels/:id/join
-         * @description Join a public channel, or rejoin one that the authenticated user previously left.
+         * @description Join a public channel, or rejoin one that the authenticated user previously left. A new or restored membership notifies that user's devices with member_added over their presence sockets.
          */
         post: operations["postChannelsIdJoin"];
         delete?: never;
@@ -1008,7 +1008,7 @@ export interface paths {
         };
         /**
          * GET /channels/:id/messages
-         * @description List non-thread messages in a channel. Supports cursor pagination, fetching newer messages, and anchoring around a message id.
+         * @description List non-thread messages in a channel. Supports cursor pagination, fetching newer messages, and anchoring around a message id. With view=conversation, limit counts non-step messages; progress, tool_output, and thinking rows in the same time window are included without consuming page slots. Cursors remain anchored to non-step messages.
          */
         get: operations["getChannelsIdMessages"];
         put?: never;
@@ -1330,7 +1330,7 @@ export interface paths {
         put?: never;
         /**
          * Create ephemeral channel
-         * @description Create a private ephemeral channel for the authenticated user, optionally adding the Tela bot as the auto-responder when that bot account exists.
+         * @description Create a private ephemeral channel for the authenticated user, optionally adding their configured ephemeral bot as the auto-responder. Returns once the channel and memberships are persisted; bot notifications continue in the background.
          */
         post: operations["postChannelsEphemeral"];
         delete?: never;
@@ -4981,6 +4981,8 @@ export interface operations {
                 around?: string;
                 /** @description Return messages newer than this message id. */
                 after?: string;
+                /** @description Use conversation to count visible conversation messages while retaining their agent steps. The default all view counts every non-thread row. */
+                view?: "all" | "conversation";
                 limit?: number;
             };
             header?: never;
