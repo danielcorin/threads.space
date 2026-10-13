@@ -17,6 +17,10 @@ import type { ThreadsSocket } from '$lib/ws.svelte.js';
 /** Drop typing entries with no fresh typing_start after this long (covers lost stop events). */
 const TYPING_EXPIRY_MS = 8_000;
 
+function countsAsReply(messageType: string | null | undefined): boolean {
+	return !messageType || messageType === 'human' || messageType === 'response';
+}
+
 export function setupChannelSocket(
 	ws: ThreadsSocket,
 	channelId: string,
@@ -51,7 +55,7 @@ export function setupChannelSocket(
 				};
 				if (msg.thread_id) {
 					thread.addReply(msg);
-					messages.incrementReplyCount(msg.thread_id);
+					if (countsAsReply(msg.message_type)) messages.incrementReplyCount(msg.thread_id);
 				} else {
 					messages.addMessage(msg);
 				}
@@ -89,7 +93,7 @@ export function setupChannelSocket(
 			};
 			if (msg.thread_id) {
 				thread.addReply(msg);
-				messages.incrementReplyCount(msg.thread_id);
+				if (countsAsReply(msg.message_type)) messages.incrementReplyCount(msg.thread_id);
 			} else {
 				messages.addMessage(msg);
 			}
@@ -122,7 +126,7 @@ export function setupChannelSocket(
 			const id = data.id || data.messageId;
 			messages.removeMessage(id);
 			thread.removeReply(id);
-			if (data.threadId) {
+			if (data.threadId && countsAsReply(data.messageType)) {
 				messages.decrementReplyCount(data.threadId);
 			}
 		})

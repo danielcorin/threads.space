@@ -334,6 +334,11 @@ export interface components {
             type: "MessageDeletedEvent";
             id: components["schemas"]["Id"];
             threadId: components["schemas"]["NullableId"];
+            /**
+             * @description Type of the deleted message; only human and response messages count as replies.
+             * @enum {string}
+             */
+            messageType?: "human" | "response" | "progress" | "tool_output" | "thinking";
         };
         ReactionAddedEvent: {
             /**

@@ -2532,7 +2532,9 @@ export interface components {
             deletedAt?: number | null;
             message_type?: components["schemas"]["MessageType"] | null;
             messageType?: components["schemas"]["MessageType"] | null;
+            /** @description Number of non-deleted human and final response replies. Progress, tool output, and thinking rows are excluded. */
             reply_count?: number | null;
+            /** @description Number of non-deleted human and final response replies. Progress, tool output, and thinking rows are excluded. */
             replyCount?: number | null;
             pinned?: number | boolean | null;
             mentions?: components["schemas"]["MessageMention"][];

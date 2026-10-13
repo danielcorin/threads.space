@@ -8420,13 +8420,15 @@
             "type": [
               "integer",
               "null"
-            ]
+            ],
+            "description": "Number of non-deleted human and final response replies. Progress, tool output, and thinking rows are excluded."
           },
           "replyCount": {
             "type": [
               "integer",
               "null"
-            ]
+            ],
+            "description": "Number of non-deleted human and final response replies. Progress, tool output, and thinking rows are excluded."
           },
           "pinned": {
             "type": [

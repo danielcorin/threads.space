@@ -651,6 +651,10 @@ components:
           $ref: '#/components/schemas/Id'
         threadId:
           $ref: '#/components/schemas/NullableId'
+        messageType:
+          type: string
+          enum: [human, response, progress, tool_output, thinking]
+          description: Type of the deleted message; only human and response messages count as replies.
       additionalProperties: false
     ReactionAddedEvent:
       type: object
