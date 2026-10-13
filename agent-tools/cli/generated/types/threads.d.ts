@@ -822,7 +822,7 @@ export interface paths {
         put?: never;
         /**
          * POST /channels/:id/members
-         * @description Add a user to a channel by user id or username. The caller must be a current member.
+         * @description Add a user to a channel by user id or username, restoring a membership that previously left. The caller must be a current member. Notify the added user's devices via member_added and Web Push with the inviter, channel name, and channel deep link. Push respects disabled user and muted channel preferences; mentions-only users remain eligible for this directed notification. Adding an existing active member is a no-op and does not notify again. Bots and self-adds do not receive push.
          */
         post: operations["postChannelsIdMembers"];
         delete?: never;
@@ -2532,7 +2532,9 @@ export interface components {
             deletedAt?: number | null;
             message_type?: components["schemas"]["MessageType"] | null;
             messageType?: components["schemas"]["MessageType"] | null;
+            /** @description Number of non-deleted human and final response replies. Progress, tool output, and thinking rows are excluded. */
             reply_count?: number | null;
+            /** @description Number of non-deleted human and final response replies. Progress, tool output, and thinking rows are excluded. */
             replyCount?: number | null;
             pinned?: number | boolean | null;
             mentions?: components["schemas"]["MessageMention"][];

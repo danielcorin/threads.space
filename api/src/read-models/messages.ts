@@ -60,7 +60,8 @@ export const MESSAGE_SELECT_COLS = `
       (SELECT json_group_array(json_object('emoji', r.emoji, 'userId', r.user_id, 'username', ru.username))
        FROM reactions r JOIN users ru ON r.user_id = ru.id
        WHERE r.message_id = m.id) as reactions_json,
-      (SELECT COUNT(*) FROM messages t WHERE t.thread_id = m.id AND t.deleted_at IS NULL) as reply_count,
+      (SELECT COUNT(*) FROM messages t WHERE t.thread_id = m.id AND t.deleted_at IS NULL
+       AND COALESCE(t.message_type, 'human') IN ('human', 'response')) as reply_count,
       (SELECT json_group_array(json_object('userId', mm.user_id, 'username', mm.username))
        FROM message_mentions mm WHERE mm.message_id = m.id) as mentions_json,
       (SELECT json_group_array(json_object('id', a.id, 'filename', a.filename, 'contentType', a.content_type, 'sizeBytes', a.size_bytes, 'url', '/uploads/' || a.r2_key))

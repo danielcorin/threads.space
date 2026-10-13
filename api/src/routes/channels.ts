@@ -3,6 +3,7 @@ import { generateId, jsonResponse, errorResponse, readJsonObject } from '../util
 import { requireChannelMembership } from '../middleware.js';
 import { publishChannelEvent, type ChannelEvent } from '../lib/channel-events.js';
 import { FEEDBACK_CHANNEL_ID } from '../constants.js';
+import { sendChannelMemberAddedPush } from './push-send.js';
 
 /** Deliver a user-targeted event over the global PresenceRoom (one DO hop). */
 function notifyUsersViaPresence(env: Env, userIds: string[], event: Record<string, unknown>, ctx?: ExecutionContext): void {
@@ -611,13 +612,14 @@ export async function handleAddMember(request: Request, env: Env, user: User, ch
     if (!targetUser) return errorResponse('User not found', 404);
   }
 
-  try {
-    await env.DB.prepare('INSERT INTO channel_members (channel_id, user_id) VALUES (?, ?)')
-      .bind(channelId, targetUserId!).run();
-  } catch (e: any) {
-    if (e.message?.includes('UNIQUE')) return jsonResponse({ ok: true }); // already a member
-    throw e;
-  }
+  // Atomically add or restore a departed member. An unchanged active membership
+  // is a no-op, including concurrent/retried adds, so it cannot send duplicate alerts.
+  const membership = await env.DB.prepare(`
+    INSERT INTO channel_members (channel_id, user_id) VALUES (?, ?)
+    ON CONFLICT(channel_id, user_id) DO UPDATE SET left_at = NULL, hidden_at = NULL
+    WHERE channel_members.left_at IS NOT NULL
+  `).bind(channelId, targetUserId!).run();
+  if (!membership.meta.changes) return jsonResponse({ ok: true });
 
   // Look up the new member's info for the broadcast
   const newMember = await env.DB.prepare('SELECT id, username, display_name FROM users WHERE id = ?')
@@ -641,12 +643,21 @@ export async function handleAddMember(request: Request, env: Env, user: User, ch
   // Also notify the added user directly (they aren't connected to this
   // channel yet): humans via the presence socket; bot adapters additionally
   // get a bounded replay through their recent channel sockets.
-  notifyUsersViaPresence(env, [targetUserId!], memberAddedEvent);
+  notifyUsersViaPresence(env, [targetUserId!], memberAddedEvent, ctx);
   const targetRole = await env.DB.prepare('SELECT role FROM users WHERE id = ?')
     .bind(targetUserId!).first<{ role: string | null }>();
   if (targetRole?.role === 'bot') {
     await notifyBotViaRecentChannels(env, targetUserId!, channelId, memberAddedEvent);
   }
+
+  const pushDelivery = sendChannelMemberAddedPush(env, {
+    channelId,
+    targetUserId: targetUserId!,
+    senderId: user.id,
+    senderName: user.display_name || user.username,
+  }).catch((error) => console.error('Channel membership push failed:', error));
+  if (ctx) ctx.waitUntil(pushDelivery);
+  else await pushDelivery;
 
   return jsonResponse({ ok: true }, 201);
 }

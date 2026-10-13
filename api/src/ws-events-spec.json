@@ -1148,6 +1148,17 @@
           },
           "threadId": {
             "$ref": "#/components/schemas/NullableId"
+          },
+          "messageType": {
+            "type": "string",
+            "enum": [
+              "human",
+              "response",
+              "progress",
+              "tool_output",
+              "thinking"
+            ],
+            "description": "Type of the deleted message; only human and response messages count as replies."
           }
         },
         "additionalProperties": false
@@ -1441,7 +1452,7 @@
       },
       "MemberAddedEvent": {
         "type": "object",
-        "description": "Delivered to the affected user's presence sockets after channel creation, joining, or rejoining so every device can discover the membership. Ephemeral-channel bot membership notifications continue in background work.",
+        "description": "Delivered to the affected user's presence sockets after channel creation, joining, rejoining, or being added by another member so every device can discover the membership. Explicit additions also send a separate Web Push notification to eligible human subscribers; unchanged memberships do not notify again. Ephemeral-channel bot membership notifications continue in background work.",
         "required": [
           "type",
           "channelId",

@@ -334,6 +334,11 @@ export interface components {
             type: "MessageDeletedEvent";
             id: components["schemas"]["Id"];
             threadId: components["schemas"]["NullableId"];
+            /**
+             * @description Type of the deleted message; only human and response messages count as replies.
+             * @enum {string}
+             */
+            messageType?: "human" | "response" | "progress" | "tool_output" | "thinking";
         };
         ReactionAddedEvent: {
             /**
@@ -445,7 +450,7 @@ export interface components {
             type: "ChannelDeletedEvent";
             channelId: components["schemas"]["Id"];
         };
-        /** @description Delivered to the affected user's presence sockets after channel creation, joining, or rejoining so every device can discover the membership. Ephemeral-channel bot membership notifications continue in background work. */
+        /** @description Delivered to the affected user's presence sockets after channel creation, joining, rejoining, or being added by another member so every device can discover the membership. Explicit additions also send a separate Web Push notification to eligible human subscribers; unchanged memberships do not notify again. Ephemeral-channel bot membership notifications continue in background work. */
         MemberAddedEvent: {
             /**
              * @description discriminator enum property added by openapi-typescript
