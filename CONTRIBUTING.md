@@ -30,5 +30,5 @@ instance data.
 The root dependency overrides keep SvelteKit's `cookie` and the Cloudflare test
 harness's `sharp` and `undici` on patched versions without upgrading SvelteKit
 to a new major version. Keep these overrides until the upstream dependencies
-require patched versions themselves. Audit both lockfiles with `npm audit` at
-the root and `npm --prefix agent-tools audit` after dependency changes.
+require patched versions themselves. Run `npm audit` at the root after
+dependency changes; it covers every workspace, including `agent-tools/cli`.
