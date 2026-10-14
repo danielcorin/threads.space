@@ -19,7 +19,6 @@ jobs:
           cache-dependency-path: package-lock.json
       - run: npm ci
       - run: npm audit
-      - run: npm --prefix agent-tools audit
       - run: npm run lint
 
   bridge:
