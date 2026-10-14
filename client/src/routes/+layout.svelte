@@ -25,7 +25,7 @@
 
 	$effect(() => {
 		if (auth.checked && !auth.loggedIn && page.url.pathname !== '/login') {
-			goto(resolve('/login'));
+			goto(resolve('login'));
 		}
 	});
 
