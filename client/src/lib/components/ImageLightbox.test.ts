@@ -4,7 +4,7 @@ import ImageLightbox from './ImageLightbox.svelte';
 
 test('renders image with correct src and alt', async () => {
 	const onclose = vi.fn();
-	const screen = render(ImageLightbox, {
+	const screen = await render(ImageLightbox, {
 		props: {
 			src: 'https://example.com/photo.jpg',
 			alt: 'A test photo',
@@ -20,7 +20,7 @@ test('renders image with correct src and alt', async () => {
 
 test('displays filename and formatted size', async () => {
 	const onclose = vi.fn();
-	const screen = render(ImageLightbox, {
+	const screen = await render(ImageLightbox, {
 		props: {
 			src: 'https://example.com/photo.jpg',
 			alt: 'Photo',
@@ -36,7 +36,7 @@ test('displays filename and formatted size', async () => {
 
 test('calls onclose when close button is clicked', async () => {
 	const onclose = vi.fn();
-	const screen = render(ImageLightbox, {
+	const screen = await render(ImageLightbox, {
 		props: {
 			src: 'https://example.com/photo.jpg',
 			alt: 'Photo',

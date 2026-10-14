@@ -66,7 +66,7 @@ describe('ProcessesPage', () => {
 		mockProcesses.killAll.mockClear();
 	});
 
-	it('keeps resolved done processes labeled as done and adds a separate resolved marker', () => {
+	it('keeps resolved done processes labeled as done and adds a separate resolved marker', async () => {
 		mockProcesses.list = [
 			makeProcess({
 				resolved_at: Math.floor(Date.now() / 1000),
@@ -74,7 +74,7 @@ describe('ProcessesPage', () => {
 			})
 		];
 
-		const screen = render(ProcessesPage);
+		const screen = await render(ProcessesPage);
 		const statuses = Array.from(screen.baseElement.querySelectorAll('[data-testid="process-status"]'));
 		const markers = Array.from(screen.baseElement.querySelectorAll('[data-testid="process-resolved-marker"]'));
 
@@ -83,7 +83,7 @@ describe('ProcessesPage', () => {
 		expect(markers.every((marker) => marker.getAttribute('title') === 'Parent message resolved')).toBe(true);
 	});
 
-	it('shows the resolved marker without replacing non-done process status', () => {
+	it('shows the resolved marker without replacing non-done process status', async () => {
 		mockProcesses.list = [
 			makeProcess({
 				status: 'error',
@@ -92,7 +92,7 @@ describe('ProcessesPage', () => {
 			})
 		];
 
-		const screen = render(ProcessesPage);
+		const screen = await render(ProcessesPage);
 		const statuses = Array.from(screen.baseElement.querySelectorAll('[data-testid="process-status"]'));
 		const markers = Array.from(screen.baseElement.querySelectorAll('[data-testid="process-resolved-marker"]'));
 
@@ -100,10 +100,10 @@ describe('ProcessesPage', () => {
 		expect(markers).toHaveLength(2);
 	});
 
-	it('renders restarted processes as a distinct terminal status', () => {
+	it('renders restarted processes as a distinct terminal status', async () => {
 		mockProcesses.list = [makeProcess({ status: 'restarted' })];
 
-		const screen = render(ProcessesPage);
+		const screen = await render(ProcessesPage);
 		const statuses = Array.from(screen.baseElement.querySelectorAll('[data-testid="process-status"]'));
 		const filter = screen.baseElement.querySelector('[data-testid="process-status-filter"]') as HTMLSelectElement;
 
@@ -126,7 +126,7 @@ describe('ProcessesPage', () => {
 			})
 		];
 
-		const screen = render(ProcessesPage);
+		const screen = await render(ProcessesPage);
 		const filter = screen.baseElement.querySelector('[data-testid="process-status-filter"]') as HTMLSelectElement;
 		filter.value = 'unresolved';
 		filter.dispatchEvent(new Event('change', { bubbles: true }));

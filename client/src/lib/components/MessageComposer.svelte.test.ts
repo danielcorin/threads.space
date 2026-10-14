@@ -6,7 +6,7 @@ import MessageComposer from './MessageComposer.svelte';
 describe('MessageComposer', () => {
 	test('renders textarea with default placeholder', async () => {
 		const onsend = vi.fn();
-		const screen = render(MessageComposer, { props: { onsend } });
+		const screen = await render(MessageComposer, { props: { onsend } });
 
 		await expect
 			.element(screen.getByPlaceholder('Type a message...'))
@@ -15,7 +15,7 @@ describe('MessageComposer', () => {
 
 	test('renders textarea with custom placeholder', async () => {
 		const onsend = vi.fn();
-		const screen = render(MessageComposer, {
+		const screen = await render(MessageComposer, {
 			props: { onsend, placeholder: 'Say something...' }
 		});
 
@@ -26,7 +26,7 @@ describe('MessageComposer', () => {
 
 	test('send button is disabled when textarea is empty', async () => {
 		const onsend = vi.fn();
-		const screen = render(MessageComposer, { props: { onsend } });
+		const screen = await render(MessageComposer, { props: { onsend } });
 
 		const sendButton = screen.getByTitle('Send message');
 		await expect.element(sendButton).toBeDisabled();
@@ -34,7 +34,7 @@ describe('MessageComposer', () => {
 
 	test('send button enables when text is entered', async () => {
 		const onsend = vi.fn();
-		const screen = render(MessageComposer, { props: { onsend } });
+		const screen = await render(MessageComposer, { props: { onsend } });
 
 		const textarea = screen.getByPlaceholder('Type a message...');
 		await userEvent.type(textarea, 'Hello');
@@ -45,7 +45,7 @@ describe('MessageComposer', () => {
 
 	test('clicking send button calls onsend with content', async () => {
 		const onsend = vi.fn();
-		const screen = render(MessageComposer, { props: { onsend } });
+		const screen = await render(MessageComposer, { props: { onsend } });
 
 		const textarea = screen.getByPlaceholder('Type a message...');
 		await userEvent.type(textarea, 'Hello world');
@@ -58,7 +58,7 @@ describe('MessageComposer', () => {
 
 	test('textarea clears after sending', async () => {
 		const onsend = vi.fn();
-		const screen = render(MessageComposer, { props: { onsend } });
+		const screen = await render(MessageComposer, { props: { onsend } });
 
 		const textarea = screen.getByPlaceholder('Type a message...');
 		await userEvent.type(textarea, 'Hello');
@@ -76,7 +76,7 @@ describe('MessageComposer', () => {
 		});
 		const onsend = vi.fn(() => pendingSend);
 		const saveDraft = vi.fn();
-		const screen = render(MessageComposer, {
+		const screen = await render(MessageComposer, {
 			props: { onsend, channelId: 'ch-1', saveDraft }
 		});
 
@@ -99,7 +99,7 @@ describe('MessageComposer', () => {
 			rejectSend = reject;
 		});
 		const onsend = vi.fn(() => pendingSend);
-		const screen = render(MessageComposer, { props: { onsend } });
+		const screen = await render(MessageComposer, { props: { onsend } });
 
 		const textarea = screen.getByPlaceholder('Type a message...');
 		await userEvent.type(textarea, 'Restore on failure');
@@ -115,7 +115,7 @@ describe('MessageComposer', () => {
 
 	test('an immediately rejected send remains optimistically cleared', async () => {
 		const onsend = vi.fn().mockRejectedValue(new Error('network down'));
-		const screen = render(MessageComposer, { props: { onsend } });
+		const screen = await render(MessageComposer, { props: { onsend } });
 
 		const textarea = screen.getByPlaceholder('Type a message...');
 		await userEvent.type(textarea, 'Do not lose me');
@@ -134,7 +134,7 @@ describe('MessageComposer', () => {
 			resolveFirst = resolve;
 		});
 		const onsend = vi.fn().mockReturnValueOnce(firstSend).mockResolvedValueOnce(undefined);
-		const screen = render(MessageComposer, { props: { onsend } });
+		const screen = await render(MessageComposer, { props: { onsend } });
 
 		const textarea = screen.getByPlaceholder('Type a message...');
 		await userEvent.type(textarea, 'First');
@@ -151,7 +151,7 @@ describe('MessageComposer', () => {
 
 	test('does not call onsend when textarea is empty', async () => {
 		const onsend = vi.fn();
-		const screen = render(MessageComposer, { props: { onsend } });
+		const screen = await render(MessageComposer, { props: { onsend } });
 
 		// Verify the send button is disabled — no click attempt since
 		// Playwright will wait for it to become enabled and time out.
@@ -164,7 +164,7 @@ describe('MessageComposer', () => {
 		const onsend = vi.fn();
 		const oneditsubmit = vi.fn();
 		const oneditcancel = vi.fn();
-		const screen = render(MessageComposer, {
+		const screen = await render(MessageComposer, {
 			props: {
 				onsend,
 				editingMessage: { id: 'msg-1', content: 'Original text' },
@@ -182,7 +182,7 @@ describe('MessageComposer', () => {
 
 	test('edit mode populates textarea with existing content', async () => {
 		const onsend = vi.fn();
-		const screen = render(MessageComposer, {
+		const screen = await render(MessageComposer, {
 			props: {
 				onsend,
 				editingMessage: { id: 'msg-1', content: 'Original text' },
@@ -197,7 +197,7 @@ describe('MessageComposer', () => {
 
 	test('save edit button has correct title in edit mode', async () => {
 		const onsend = vi.fn();
-		const screen = render(MessageComposer, {
+		const screen = await render(MessageComposer, {
 			props: {
 				onsend,
 				editingMessage: { id: 'msg-1', content: 'Original text' },
@@ -212,7 +212,7 @@ describe('MessageComposer', () => {
 	test('cancel button in edit mode calls oneditcancel', async () => {
 		const onsend = vi.fn();
 		const oneditcancel = vi.fn();
-		const screen = render(MessageComposer, {
+		const screen = await render(MessageComposer, {
 			props: {
 				onsend,
 				editingMessage: { id: 'msg-1', content: 'Original text' },
@@ -227,7 +227,7 @@ describe('MessageComposer', () => {
 
 	test('attach file button is present', async () => {
 		const onsend = vi.fn();
-		const screen = render(MessageComposer, { props: { onsend } });
+		const screen = await render(MessageComposer, { props: { onsend } });
 
 		await expect.element(screen.getByTitle('Attach file')).toBeInTheDocument();
 	});
@@ -235,7 +235,7 @@ describe('MessageComposer', () => {
 	test('typing calls ontypingstart', async () => {
 		const onsend = vi.fn();
 		const ontypingstart = vi.fn();
-		const screen = render(MessageComposer, {
+		const screen = await render(MessageComposer, {
 			props: { onsend, ontypingstart }
 		});
 
@@ -248,7 +248,7 @@ describe('MessageComposer', () => {
 	test('saves draft to empty on send', async () => {
 		const onsend = vi.fn();
 		const saveDraft = vi.fn();
-		const screen = render(MessageComposer, {
+		const screen = await render(MessageComposer, {
 			props: { onsend, channelId: 'ch-1', saveDraft }
 		});
 

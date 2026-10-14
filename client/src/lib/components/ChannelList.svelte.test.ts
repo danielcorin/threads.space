@@ -88,7 +88,7 @@ describe('ChannelList', () => {
 			channels: ['channel-1']
 		}];
 
-		render(ChannelList, {
+		await render(ChannelList, {
 			props: {
 				oncreate: vi.fn(),
 				onbrowse: vi.fn(),
@@ -102,7 +102,7 @@ describe('ChannelList', () => {
 	});
 
 	test('renders "Channels" header text', async () => {
-		const screen = render(ChannelList, {
+		const screen = await render(ChannelList, {
 			props: { oncreate: vi.fn(), onbrowse: vi.fn() }
 		});
 
@@ -112,7 +112,7 @@ describe('ChannelList', () => {
 	});
 
 	test('shows "No channels yet" when channel list is empty', async () => {
-		const screen = render(ChannelList, {
+		const screen = await render(ChannelList, {
 			props: { oncreate: vi.fn(), onbrowse: vi.fn() }
 		});
 
@@ -122,7 +122,7 @@ describe('ChannelList', () => {
 	});
 
 	test('renders "Browse channels" button', async () => {
-		const screen = render(ChannelList, {
+		const screen = await render(ChannelList, {
 			props: { oncreate: vi.fn(), onbrowse: vi.fn() }
 		});
 
@@ -133,7 +133,7 @@ describe('ChannelList', () => {
 
 	test('clicking browse calls onbrowse', async () => {
 		const onbrowse = vi.fn();
-		const screen = render(ChannelList, {
+		const screen = await render(ChannelList, {
 			props: { oncreate: vi.fn(), onbrowse }
 		});
 
@@ -142,7 +142,7 @@ describe('ChannelList', () => {
 	});
 
 	test('create channel button is present', async () => {
-		const screen = render(ChannelList, {
+		const screen = await render(ChannelList, {
 			props: { oncreate: vi.fn(), onbrowse: vi.fn() }
 		});
 
@@ -163,7 +163,7 @@ describe('ChannelList', () => {
 		mockSidebarState.unfiledChannelIds = ['channel-1'];
 		mockSidebarState.activeChannelIds.add('channel-1');
 
-		const screen = render(ChannelList, {
+		const screen = await render(ChannelList, {
 			props: { oncreate: vi.fn(), onbrowse: vi.fn() }
 		});
 
@@ -182,7 +182,7 @@ describe('ChannelList', () => {
 		}];
 		mockSidebarState.unfiledChannelIds = ['channel-1'];
 
-		const screen = render(ChannelList, {
+		const screen = await render(ChannelList, {
 			props: { oncreate: vi.fn(), onbrowse: vi.fn() }
 		});
 
@@ -192,7 +192,7 @@ describe('ChannelList', () => {
 
 	test('clicking create channel calls oncreate', async () => {
 		const oncreate = vi.fn();
-		const screen = render(ChannelList, {
+		const screen = await render(ChannelList, {
 			props: { oncreate, onbrowse: vi.fn() }
 		});
 
@@ -201,7 +201,7 @@ describe('ChannelList', () => {
 	});
 
 	test('new folder button is present', async () => {
-		const screen = render(ChannelList, {
+		const screen = await render(ChannelList, {
 			props: { oncreate: vi.fn(), onbrowse: vi.fn() }
 		});
 
@@ -211,7 +211,7 @@ describe('ChannelList', () => {
 	});
 
 	test('clicking new folder shows folder name input', async () => {
-		const screen = render(ChannelList, {
+		const screen = await render(ChannelList, {
 			props: { oncreate: vi.fn(), onbrowse: vi.fn() }
 		});
 
@@ -241,7 +241,7 @@ describe('ChannelList', () => {
 		});
 
 		try {
-			const screen = render(ChannelList, {
+			const screen = await render(ChannelList, {
 				props: { oncreate: vi.fn(), onbrowse: vi.fn() }
 			});
 			const channelName = screen.getByText('general', { exact: true });

@@ -12,7 +12,7 @@ beforeEach(() => {
 describe('FileViewer modal', () => {
 	test('renders filename and size in header', async () => {
 		const onclose = vi.fn();
-		const screen = render(FileViewer, {
+		const screen = await render(FileViewer, {
 			props: {
 				url: 'https://example.com/file.txt',
 				contentType: 'text/plain',
@@ -26,7 +26,7 @@ describe('FileViewer modal', () => {
 
 	test('clicking close button calls onclose', async () => {
 		const onclose = vi.fn();
-		const screen = render(FileViewer, {
+		const screen = await render(FileViewer, {
 			props: {
 				url: 'https://example.com/file.txt',
 				contentType: 'text/plain',
@@ -41,7 +41,7 @@ describe('FileViewer modal', () => {
 
 	test('clicking backdrop calls onclose', async () => {
 		const onclose = vi.fn();
-		const screen = render(FileViewer, {
+		const screen = await render(FileViewer, {
 			props: {
 				url: 'https://example.com/file.txt',
 				contentType: 'text/plain',
@@ -58,7 +58,7 @@ describe('FileViewer modal', () => {
 
 	test('escape key calls onclose', async () => {
 		const onclose = vi.fn();
-		render(FileViewer, {
+		await render(FileViewer, {
 			props: {
 				url: 'https://example.com/file.txt',
 				contentType: 'text/plain',
@@ -73,7 +73,7 @@ describe('FileViewer modal', () => {
 
 	test('audio content type renders an audio element', async () => {
 		const onclose = vi.fn();
-		const screen = render(FileViewer, {
+		const screen = await render(FileViewer, {
 			props: {
 				url: 'https://example.com/song.mp3',
 				contentType: 'audio/mpeg',
@@ -89,7 +89,7 @@ describe('FileViewer modal', () => {
 
 	test('pdf content type renders an iframe', async () => {
 		const onclose = vi.fn();
-		const screen = render(FileViewer, {
+		const screen = await render(FileViewer, {
 			props: {
 				url: 'https://example.com/doc.pdf',
 				contentType: 'application/pdf',
@@ -105,7 +105,7 @@ describe('FileViewer modal', () => {
 
 	test('unsupported content type renders the fallback panel', async () => {
 		const onclose = vi.fn();
-		const screen = render(FileViewer, {
+		const screen = await render(FileViewer, {
 			props: {
 				url: 'https://example.com/archive.zip',
 				contentType: 'application/zip',
@@ -121,7 +121,7 @@ describe('FileViewer modal', () => {
 
 	test('text content type triggers a fetch for the body', async () => {
 		const onclose = vi.fn();
-		render(FileViewer, {
+		await render(FileViewer, {
 			props: {
 				url: 'https://example.com/note.txt',
 				contentType: 'text/plain',
@@ -143,7 +143,7 @@ describe('FileViewer modal', () => {
 			return new Response('{"hello":"world"}', { status: 200 });
 		});
 		const onclose = vi.fn();
-		render(FileViewer, {
+		await render(FileViewer, {
 			props: {
 				url: 'https://example.com/data.json',
 				contentType: 'application/json',
@@ -164,7 +164,7 @@ describe('FileViewer modal', () => {
 			return new Response('a,b\n1,2', { status: 200 });
 		});
 		const onclose = vi.fn();
-		render(FileViewer, {
+		await render(FileViewer, {
 			props: {
 				url: 'https://example.com/data.csv',
 				contentType: 'text/csv',
@@ -185,7 +185,7 @@ describe('FileViewer modal', () => {
 			return new Response('# Hello\n\nThis is **bold**.', { status: 200 });
 		});
 		const onclose = vi.fn();
-		render(FileViewer, {
+		await render(FileViewer, {
 			props: {
 				url: 'https://example.com/readme.md',
 				contentType: 'text/markdown',

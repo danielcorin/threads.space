@@ -62,7 +62,7 @@ describe('InboxPage', () => {
 	});
 
 	it('loads without acknowledging messages and identifies thread replies', async () => {
-		const screen = render(InboxPage);
+		const screen = await render(InboxPage);
 
 		await expect.element(screen.getByText('Inbox message body')).toBeInTheDocument();
 		await expect.element(screen.getByText('#general · Thread')).toBeInTheDocument();
@@ -71,14 +71,14 @@ describe('InboxPage', () => {
 	});
 
 	it('marks an individual message read', async () => {
-		const screen = render(InboxPage);
+		const screen = await render(InboxPage);
 		await screen.getByText('Mark read').click();
 
 		expect(mockInbox.markRead).toHaveBeenCalledWith('message-1');
 	});
 
 	it('sends an inline reply through the Inbox action', async () => {
-		const screen = render(InboxPage);
+		const screen = await render(InboxPage);
 		await screen.getByText('Reply', { exact: true }).click();
 		await screen.getByPlaceholder('Write a reply…').fill('Following up');
 		await screen.getByText('Send reply').click();
