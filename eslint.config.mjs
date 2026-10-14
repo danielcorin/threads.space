@@ -2,7 +2,6 @@ import js from '@eslint/js';
 import ts from 'typescript-eslint';
 import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
-import svelteConfig from './client/svelte.config.js';
 
 export default ts.config(
 	// Paths that should never be linted (generated, build output, deps).
@@ -90,8 +89,7 @@ export default ts.config(
 		files: ['**/*.svelte', '**/*.svelte.ts', '**/*.svelte.js'],
 		languageOptions: {
 			parserOptions: {
-				parser: ts.parser,
-				svelteConfig
+				parser: ts.parser
 			}
 		}
 	},
