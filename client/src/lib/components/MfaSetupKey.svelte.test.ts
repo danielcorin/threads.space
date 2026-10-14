@@ -13,7 +13,7 @@ afterEach(() => {
 test('copies the manual enrollment key with one click', async () => {
 	const writeText = vi.fn().mockResolvedValue(undefined);
 	Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } });
-	const screen = render(MfaSetupKey, { props: { secret } });
+	const screen = await render(MfaSetupKey, { props: { secret } });
 	await screen.getByRole('button', { name: 'Copy key' }).click();
 	expect(writeText).toHaveBeenCalledWith(secret);
 	await expect.element(screen.getByRole('status')).toHaveTextContent('Key copied');
@@ -24,7 +24,7 @@ test('selects the key for manual copying if clipboard access is denied', async (
 		configurable: true,
 		value: { writeText: vi.fn().mockRejectedValue(new Error('Denied')) }
 	});
-	const screen = render(MfaSetupKey, { props: { secret } });
+	const screen = await render(MfaSetupKey, { props: { secret } });
 	await screen.getByRole('button', { name: 'Copy key' }).click();
 	const input = screen.getByRole('textbox', { name: 'Authenticator setup key' }).element() as HTMLTextAreaElement;
 	expect(input.readOnly).toBe(true);
