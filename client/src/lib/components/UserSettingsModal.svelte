@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth } from '$lib/state/auth.svelte.js';
+	import { auth } from '#lib/state/auth.svelte.js';
 	import Modal from './ui/Modal.svelte';
 	import Button from './ui/Button.svelte';
 	import ProfileTab from './settings/ProfileTab.svelte';

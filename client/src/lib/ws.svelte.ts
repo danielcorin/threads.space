@@ -1,4 +1,4 @@
-import { websocketOrigin } from '$lib/ws-url.js';
+import { websocketOrigin } from '#lib/ws-url.js';
 
 type MessageHandler = (data: any) => void;
 

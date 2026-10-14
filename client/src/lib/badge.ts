@@ -1,5 +1,5 @@
-import { channels } from '$lib/state/channels.svelte.js';
-import { dms } from '$lib/state/dms.svelte.js';
+import { channels } from '#lib/state/channels.svelte.js';
+import { dms } from '#lib/state/dms.svelte.js';
 
 /** Sum all channels' and DMs' unread_count and set the app badge. No-op if Badge API is unavailable. */
 export function updateBadge(totalOverride?: number): void {

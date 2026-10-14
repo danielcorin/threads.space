@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-vi.mock('$lib/state/auth.svelte.js', () => ({
+vi.mock('#lib/state/auth.svelte.js', () => ({
 	auth: { user: { id: 'me' } }
 }));
 
-vi.mock('$lib/state/channels.svelte.js', () => ({
+vi.mock('#lib/state/channels.svelte.js', () => ({
 	channels: {
 		list: [{ id: 'current-ch' }],
 		load: vi.fn(),
@@ -13,7 +13,7 @@ vi.mock('$lib/state/channels.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/messages.svelte.js', () => ({
+vi.mock('#lib/state/messages.svelte.js', () => ({
 	messages: {
 		addMessage: vi.fn(),
 		incrementReplyCount: vi.fn(),
@@ -24,7 +24,7 @@ vi.mock('$lib/state/messages.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/thread.svelte.js', () => ({
+vi.mock('#lib/state/thread.svelte.js', () => ({
 	thread: {
 		addReply: vi.fn(),
 		removeReply: vi.fn(),
@@ -32,7 +32,7 @@ vi.mock('$lib/state/thread.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/processes.svelte.js', () => ({
+vi.mock('#lib/state/processes.svelte.js', () => ({
 	processes: {
 		load: vi.fn(),
 		addProcess: vi.fn(),
@@ -41,7 +41,7 @@ vi.mock('$lib/state/processes.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/board.svelte.js', () => ({
+vi.mock('#lib/state/board.svelte.js', () => ({
 	board: {
 		handleBoardUpdated: vi.fn(),
 		handleCardCreated: vi.fn(),
@@ -50,27 +50,27 @@ vi.mock('$lib/state/board.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/pins.svelte.js', () => ({
+vi.mock('#lib/state/pins.svelte.js', () => ({
 	pins: {
 		handlePinned: vi.fn(),
 		handleUnpinned: vi.fn()
 	}
 }));
 
-vi.mock('$lib/badge.js', () => ({
+vi.mock('#lib/badge.js', () => ({
 	updateBadge: vi.fn()
 }));
 
-vi.mock('$lib/api.js', () => ({
+vi.mock('#lib/api.js', () => ({
 	api: {
 		channels: { markRead: vi.fn().mockResolvedValue(undefined) }
 	}
 }));
 
 import { setupChannelSocket } from './useChannelSocket.js';
-import { channels } from '$lib/state/channels.svelte.js';
-import { messages } from '$lib/state/messages.svelte.js';
-import { thread } from '$lib/state/thread.svelte.js';
+import { channels } from '#lib/state/channels.svelte.js';
+import { messages } from '#lib/state/messages.svelte.js';
+import { thread } from '#lib/state/thread.svelte.js';
 
 type Handler = (data: any) => void;
 

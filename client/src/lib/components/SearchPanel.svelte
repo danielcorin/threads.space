@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import { api } from '$lib/api.js';
-	import { channels } from '$lib/state/channels.svelte.js';
-	import { dms } from '$lib/state/dms.svelte.js';
-	import { formatTime } from '$lib/utils/time.js';
-	import { renderSnippet } from '$lib/search.js';
-	import { parse } from '$lib/searchSyntax.js';
+	import { api } from '#lib/api.js';
+	import { channels } from '#lib/state/channels.svelte.js';
+	import { dms } from '#lib/state/dms.svelte.js';
+	import { formatTime } from '#lib/utils/time.js';
+	import { renderSnippet } from '#lib/search.js';
+	import { parse } from '#lib/searchSyntax.js';
 	import {
 		type Pill,
 		pillFilters as computePillFilters,
@@ -14,7 +14,7 @@
 		resolveChannelId as resolveChannelIdAgainst,
 		pillLabel as computePillLabel,
 		resolveHistoryQueryIds
-	} from '$lib/searchPills.js';
+	} from '#lib/searchPills.js';
 	import {
 		getRecentSearches,
 		addRecentSearch,
@@ -26,7 +26,7 @@
 		getDisplayQuery,
 		getLastQuery,
 		setLastQuery
-	} from '$lib/searchHistory.js';
+	} from '#lib/searchHistory.js';
 	import CaretLeft from 'phosphor-svelte/lib/CaretLeft';
 	import ChatCircleDots from 'phosphor-svelte/lib/ChatCircleDots';
 	import Robot from 'phosphor-svelte/lib/Robot';
@@ -140,7 +140,7 @@
 		{ label: 'file', value: 'file', detail: 'Messages with attachments' },
 	];
 
-	// Pure pill/filter helpers live in $lib/searchPills.ts; these thin wrappers
+	// Pure pill/filter helpers live in #lib/searchPills.ts; these thin wrappers
 	// bind them to the channel/DM stores.
 	function pillFilters(): Record<string, string> {
 		return computePillFilters(pills);

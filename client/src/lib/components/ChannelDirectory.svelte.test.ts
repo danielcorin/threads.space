@@ -3,7 +3,7 @@ import { render } from 'vitest-browser-svelte';
 import { page } from 'vitest/browser';
 import ChannelDirectory from './ChannelDirectory.svelte';
 
-vi.mock('$lib/api.js', () => ({
+vi.mock('#lib/api.js', () => ({
 	api: {
 		channels: {
 			browse: vi.fn().mockResolvedValue([
@@ -13,7 +13,7 @@ vi.mock('$lib/api.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/channels.svelte.js', () => ({
+vi.mock('#lib/state/channels.svelte.js', () => ({
 	channels: {
 		join: vi.fn().mockResolvedValue(undefined),
 		select: vi.fn()

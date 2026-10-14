@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { emojiPicker } from '$lib/state/emoji-picker.svelte.js';
+	import { emojiPicker } from '#lib/state/emoji-picker.svelte.js';
 	import 'emoji-picker-element';
 
 	let pickerRef: HTMLElement | undefined = $state();

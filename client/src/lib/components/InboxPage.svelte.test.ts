@@ -10,7 +10,7 @@ const mockInbox = vi.hoisted(() => ({
 	reply: vi.fn().mockResolvedValue(undefined),
 }));
 
-vi.mock('$lib/state/inbox.svelte.js', () => ({
+vi.mock('#lib/state/inbox.svelte.js', () => ({
 	inbox: {
 		get list() { return mockInbox.list; },
 		get total() { return mockInbox.total; },
@@ -26,7 +26,7 @@ vi.mock('$lib/state/inbox.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/utils/markdown.js', () => ({
+vi.mock('#lib/utils/markdown.js', () => ({
 	renderMarkdown: (content: string) => content,
 }));
 

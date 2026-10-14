@@ -1,9 +1,9 @@
 <script lang="ts">
 	import QRCode from 'qrcode';
-	import { api } from '$lib/api.js';
-	import type { MfaSetup } from '$lib/api.js';
-	import { normalizeMfaCode } from '$lib/mfa-code.js';
-	import { auth } from '$lib/state/auth.svelte.js';
+	import { api } from '#lib/api.js';
+	import type { MfaSetup } from '#lib/api.js';
+	import { normalizeMfaCode } from '#lib/mfa-code.js';
+	import { auth } from '#lib/state/auth.svelte.js';
 	import Spinner from './Spinner.svelte';
 	import MfaSetupKey from './MfaSetupKey.svelte';
 

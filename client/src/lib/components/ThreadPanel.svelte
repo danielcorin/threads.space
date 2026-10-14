@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { thread } from '$lib/state/thread.svelte.js';
-	import { messages as messagesState } from '$lib/state/messages.svelte.js';
-	import { auth } from '$lib/state/auth.svelte.js';
+	import { thread } from '#lib/state/thread.svelte.js';
+	import { messages as messagesState } from '#lib/state/messages.svelte.js';
+	import { auth } from '#lib/state/auth.svelte.js';
 	import { onMount } from 'svelte';
-	import { ui } from '$lib/state/ui.svelte.js';
-	import { api } from '$lib/api.js';
-	import type { Message } from '$lib/state/messages.svelte.js';
+	import { ui } from '#lib/state/ui.svelte.js';
+	import { api } from '#lib/api.js';
+	import type { Message } from '#lib/state/messages.svelte.js';
 	import MessageItem from './MessageItem.svelte';
 	import AgentSteps from './AgentSteps.svelte';
 	import MessageComposer from './MessageComposer.svelte';
-	import { groupMessages, type RenderItem } from '$lib/utils/groupSteps.js';
+	import { groupMessages, type RenderItem } from '#lib/utils/groupSteps.js';
 	import CaretLeft from 'phosphor-svelte/lib/CaretLeft';
 	import X from 'phosphor-svelte/lib/X';
 	import Check from 'phosphor-svelte/lib/Check';

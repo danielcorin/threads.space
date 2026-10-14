@@ -38,7 +38,6 @@ const API_BROAD_TEST_FILES = new Set([
 ]);
 const CLIENT_BROAD_TEST_FILES = new Set([
   'client/package.json',
-  'client/svelte.config.js',
   'client/tsconfig.json',
   'client/vite.config.ts',
   'client/vite.worker.config.ts',

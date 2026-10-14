@@ -1,12 +1,12 @@
-import { auth } from '$lib/state/auth.svelte.js';
-import { channels } from '$lib/state/channels.svelte.js';
-import { dms } from '$lib/state/dms.svelte.js';
-import { messages, type LinkPreview, type Message } from '$lib/state/messages.svelte.js';
-import { thread } from '$lib/state/thread.svelte.js';
-import { board } from '$lib/state/board.svelte.js';
-import { pins } from '$lib/state/pins.svelte.js';
-import { api } from '$lib/api.js';
-import type { ThreadsSocket } from '$lib/ws.svelte.js';
+import { auth } from '#lib/state/auth.svelte.js';
+import { channels } from '#lib/state/channels.svelte.js';
+import { dms } from '#lib/state/dms.svelte.js';
+import { messages, type LinkPreview, type Message } from '#lib/state/messages.svelte.js';
+import { thread } from '#lib/state/thread.svelte.js';
+import { board } from '#lib/state/board.svelte.js';
+import { pins } from '#lib/state/pins.svelte.js';
+import { api } from '#lib/api.js';
+import type { ThreadsSocket } from '#lib/ws.svelte.js';
 
 /**
  * Sets up all WebSocket event handlers for a channel connection.

@@ -1,4 +1,4 @@
-import { API_BASE } from '$lib/api.js';
+import { API_BASE } from '#lib/api.js';
 import { ui } from './ui.svelte.js';
 import { compareMessages, mergeMessages, upsertMessage } from './messages.svelte.js';
 import type { Message, Reaction } from './messages.svelte.js';
