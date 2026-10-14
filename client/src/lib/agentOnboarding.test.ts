@@ -50,6 +50,12 @@ describe('agent onboarding', () => {
 			wsEventsUrl: 'https://threads-acme.example.com/api/ws-events.json',
 		});
 
+		for (const { prompt } of prompts) {
+			expect(prompt).toContain('Settings -> Bots');
+			expect(prompt).toContain('Access set to Admin provisioning');
+			expect(prompt).toContain('Bot passwords cannot mint API tokens');
+		}
+
 		expect(prompts.map((prompt) => prompt.id)).toEqual(['generic', 'hermes', 'openclaw']);
 		expect(prompts.find((prompt) => prompt.id === 'hermes')?.prompt).toContain('Hermes platform plugin');
 		expect(prompts.find((prompt) => prompt.id === 'hermes')?.prompt).toContain('edit_message');

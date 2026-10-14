@@ -1387,6 +1387,57 @@
           }
         ],
         "x-route-boundary": "core"
+      },
+      "get": {
+        "operationId": "getUsersIdApiTokens",
+        "tags": [
+          "users"
+        ],
+        "summary": "GET /users/:id/api-tokens",
+        "description": "List non-revoked API token metadata for another user. Requires an admin session or an admin bearer token with tokens:manage. Includes scopes, expiry and last use; never returns raw tokens or credential verifiers.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyApiTokenListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "401": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          },
+          {
+            "bearerAuth": []
+          }
+        ],
+        "x-route-boundary": "core"
       }
     },
     "/bots/self/capabilities": {
