@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render } from 'vitest-browser-svelte';
 import { page } from 'vitest/browser';
-import { api } from '$lib/api.js';
+import { api } from '#lib/api.js';
 import ApiTokenManager from './ApiTokenManager.svelte';
 
-vi.mock('$lib/api.js', () => ({ api: { users: {
+vi.mock('#lib/api.js', () => ({ api: { users: {
  listApiTokens: vi.fn(), listApiTokensForUser: vi.fn(),
  createApiToken: vi.fn(), createApiTokenForUser: vi.fn(),
  revokeApiToken: vi.fn(), revokeApiTokenForUser: vi.fn(),

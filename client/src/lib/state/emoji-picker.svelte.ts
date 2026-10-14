@@ -1,7 +1,7 @@
 // Global emoji picker state — renders at page level to avoid
 // Svelte 5 event delegation issues with nested action bars
 
-import { api } from '$lib/api.js';
+import { api } from '#lib/api.js';
 
 const DEFAULT_EMOJIS = ['👍', '❤️', '😂'];
 

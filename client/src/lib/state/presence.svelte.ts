@@ -1,7 +1,7 @@
-import { API_BASE } from '$lib/api.js';
-import { websocketOrigin } from '$lib/ws-url.js';
-import { auth } from '$lib/state/auth.svelte.js';
-import { channels } from '$lib/state/channels.svelte.js';
+import { API_BASE } from '#lib/api.js';
+import { websocketOrigin } from '#lib/ws-url.js';
+import { auth } from '#lib/state/auth.svelte.js';
+import { channels } from '#lib/state/channels.svelte.js';
 
 /** Reactive presence state — tracks which users are online via a dedicated WebSocket. */
 

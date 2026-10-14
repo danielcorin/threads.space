@@ -1,6 +1,6 @@
-import { ui } from '$lib/state/ui.svelte.js';
-import { thread } from '$lib/state/thread.svelte.js';
-import { blurActiveInput } from '$lib/utils/blur.js';
+import { ui } from '#lib/state/ui.svelte.js';
+import { thread } from '#lib/state/thread.svelte.js';
+import { blurActiveInput } from '#lib/utils/blur.js';
 
 /**
  * Sets up unified swipe gesture handling for sidebar open/close and thread dismiss.

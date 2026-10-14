@@ -1,5 +1,5 @@
-import { api } from '$lib/api.js';
-import { folders } from '$lib/state/folders.svelte.js';
+import { api } from '#lib/api.js';
+import { folders } from '#lib/state/folders.svelte.js';
 
 const LAST_CHANNEL_KEY = 'threads_last_channel';
 

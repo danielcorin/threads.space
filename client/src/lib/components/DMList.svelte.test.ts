@@ -4,7 +4,7 @@ import { expect, test, vi, describe, beforeEach } from 'vitest';
 const mockDms: any[] = [];
 let mockSelectedId: string | null = null;
 
-vi.mock('$lib/state/dms.svelte.js', () => ({
+vi.mock('#lib/state/dms.svelte.js', () => ({
 	dms: {
 		get list() { return mockDms; },
 		get selectedId() { return mockSelectedId; },
@@ -14,7 +14,7 @@ vi.mock('$lib/state/dms.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/ui.svelte.js', () => ({
+vi.mock('#lib/state/ui.svelte.js', () => ({
 	ui: {
 		get isMobile() { return false; },
 		closeSidebar: vi.fn()
@@ -24,19 +24,19 @@ vi.mock('$lib/state/ui.svelte.js', () => ({
 const mockOnlineUsers = new Set<string>();
 const mockActiveChannelIds = new Set<string>();
 
-vi.mock('$lib/state/presence.svelte.js', () => ({
+vi.mock('#lib/state/presence.svelte.js', () => ({
 	presence: {
 		isOnline: (id: string) => mockOnlineUsers.has(id),
 	}
 }));
 
-vi.mock('$lib/state/processes.svelte.js', () => ({
+vi.mock('#lib/state/processes.svelte.js', () => ({
 	processes: {
 		get activeChannelIds() { return mockActiveChannelIds; }
 	}
 }));
 
-vi.mock('$lib/useLongPressDrag.js', () => ({
+vi.mock('#lib/useLongPressDrag.js', () => ({
 	createLongPressDrag: () => ({
 		onMouseDown: vi.fn(),
 		onTouchStart: vi.fn(),

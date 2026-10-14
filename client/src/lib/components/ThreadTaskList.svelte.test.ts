@@ -1,6 +1,6 @@
 import { render } from 'vitest-browser-svelte';
 import { describe, expect, test, vi } from 'vitest';
-import type { Message } from '$lib/state/messages.svelte.js';
+import type { Message } from '#lib/state/messages.svelte.js';
 import ThreadTaskList from './ThreadTaskList.svelte';
 
 function makeMessage(overrides: Partial<Message> = {}): Message {

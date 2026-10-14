@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { emojiPicker } from '$lib/state/emoji-picker.svelte.js';
+	import { emojiPicker } from '#lib/state/emoji-picker.svelte.js';
 	import Plus from 'phosphor-svelte/lib/Plus';
 	import 'emoji-picker-element';
 

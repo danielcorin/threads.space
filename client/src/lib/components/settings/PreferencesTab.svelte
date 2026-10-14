@@ -2,16 +2,16 @@
 	import { onMount } from 'svelte';
 	import Bell from 'phosphor-svelte/lib/Bell';
 	import BellSlash from 'phosphor-svelte/lib/BellSlash';
-	import { api } from '$lib/api.js';
-	import { auth } from '$lib/state/auth.svelte.js';
-	import { codeTheme, CODE_THEMES } from '$lib/state/codeTheme.svelte.js';
+	import { api } from '#lib/api.js';
+	import { auth } from '#lib/state/auth.svelte.js';
+	import { codeTheme, CODE_THEMES } from '#lib/state/codeTheme.svelte.js';
 	import {
 		preparePushNotifications,
 		subscribeToPush,
 		unsubscribeFromPush,
 		isPushSubscribed,
 		getUnsupportedPushBrowserMessage
-	} from '$lib/push.js';
+	} from '#lib/push.js';
 	import Section from '../ui/Section.svelte';
 	import Banner from '../ui/Banner.svelte';
 	import Toggle from '../ui/Toggle.svelte';

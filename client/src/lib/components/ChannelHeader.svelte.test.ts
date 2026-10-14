@@ -1,6 +1,6 @@
 import { render } from 'vitest-browser-svelte';
 import { describe, expect, test, vi } from 'vitest';
-import type { Channel } from '$lib/state/channels.svelte.js';
+import type { Channel } from '#lib/state/channels.svelte.js';
 import ChannelHeader from './ChannelHeader.svelte';
 
 const baseProps = {

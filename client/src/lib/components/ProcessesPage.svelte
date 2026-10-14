@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { processes, type Process } from '$lib/state/processes.svelte.js';
+	import { processes, type Process } from '#lib/state/processes.svelte.js';
 	import CheckCircle from 'phosphor-svelte/lib/CheckCircle';
 	import List from 'phosphor-svelte/lib/List';
 

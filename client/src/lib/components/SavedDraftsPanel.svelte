@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { savedDrafts, type SavedDraft } from '$lib/state/saved-drafts.svelte.js';
-	import { ui } from '$lib/state/ui.svelte.js';
+	import { savedDrafts, type SavedDraft } from '#lib/state/saved-drafts.svelte.js';
+	import { ui } from '#lib/state/ui.svelte.js';
 	import { onMount } from 'svelte';
 	import X from 'phosphor-svelte/lib/X';
 	import NotePencil from 'phosphor-svelte/lib/NotePencil';

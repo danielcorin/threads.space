@@ -1,9 +1,9 @@
 <script lang="ts">
-	import type { Channel } from '$lib/state/channels.svelte.js';
-	import type { ConversationMode } from '$lib/state/ui.svelte.js';
-	import type { Widget } from '$lib/api.js';
-	import { presence } from '$lib/state/presence.svelte.js';
-	import { FEEDBACK_CHANNEL_ID } from '$lib/constants.js';
+	import type { Channel } from '#lib/state/channels.svelte.js';
+	import type { ConversationMode } from '#lib/state/ui.svelte.js';
+	import type { Widget } from '#lib/api.js';
+	import { presence } from '#lib/state/presence.svelte.js';
+	import { FEEDBACK_CHANNEL_ID } from '#lib/constants.js';
 	import List from 'phosphor-svelte/lib/List';
 	import ListChecks from 'phosphor-svelte/lib/ListChecks';
 	import Lock from 'phosphor-svelte/lib/Lock';
@@ -26,7 +26,7 @@
 	import Bug from 'phosphor-svelte/lib/Bug';
 	import CaretLeft from 'phosphor-svelte/lib/CaretLeft';
 	import CaretRight from 'phosphor-svelte/lib/CaretRight';
-	import { blurActiveInput } from '$lib/utils/blur.js';
+	import { blurActiveInput } from '#lib/utils/blur.js';
 
 	const iconMap: Record<string, typeof PuzzlePiece> = {
 		PuzzlePiece,

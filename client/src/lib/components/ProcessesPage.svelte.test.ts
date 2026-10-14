@@ -9,7 +9,7 @@ const mockProcesses = vi.hoisted(() => ({
 	killAll: vi.fn().mockResolvedValue(undefined)
 }));
 
-vi.mock('$lib/state/processes.svelte.js', () => ({
+vi.mock('#lib/state/processes.svelte.js', () => ({
 	processes: {
 		get list() {
 			return mockProcesses.list;

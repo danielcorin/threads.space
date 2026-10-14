@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
-	import { api } from '$lib/api.js';
-	import { channels } from '$lib/state/channels.svelte.js';
-	import { dms } from '$lib/state/dms.svelte.js';
-	import { formatTime } from '$lib/utils/time.js';
-	import { renderSnippet } from '$lib/search.js';
-	import { parse } from '$lib/searchSyntax.js';
+	import { api } from '#lib/api.js';
+	import { channels } from '#lib/state/channels.svelte.js';
+	import { dms } from '#lib/state/dms.svelte.js';
+	import { formatTime } from '#lib/utils/time.js';
+	import { renderSnippet } from '#lib/search.js';
+	import { parse } from '#lib/searchSyntax.js';
 	import {
 		type Pill,
 		pillFilters as computePillFilters,
@@ -14,7 +14,7 @@
 		resolveChannelId as resolveChannelIdAgainst,
 		pillLabel as computePillLabel,
 		resolveHistoryQueryIds
-	} from '$lib/searchPills.js';
+	} from '#lib/searchPills.js';
 	import {
 		getRecentSearches,
 		addRecentSearch,
@@ -26,7 +26,7 @@
 		getDisplayQuery,
 		getLastQuery,
 		setLastQuery
-	} from '$lib/searchHistory.js';
+	} from '#lib/searchHistory.js';
 	import CaretLeft from 'phosphor-svelte/lib/CaretLeft';
 	import ChatCircleDots from 'phosphor-svelte/lib/ChatCircleDots';
 	import Robot from 'phosphor-svelte/lib/Robot';

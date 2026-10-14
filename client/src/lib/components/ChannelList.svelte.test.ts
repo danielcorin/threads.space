@@ -17,7 +17,7 @@ const mockSidebarState = vi.hoisted(() => ({
 }));
 
 // Mock all the stores ChannelList depends on
-vi.mock('$lib/state/channels.svelte.js', () => ({
+vi.mock('#lib/state/channels.svelte.js', () => ({
 	channels: {
 		get list() { return mockSidebarState.channels; },
 		get loading() { return false; },
@@ -26,7 +26,7 @@ vi.mock('$lib/state/channels.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/folders.svelte.js', () => ({
+vi.mock('#lib/state/folders.svelte.js', () => ({
 	folders: {
 		get list() { return mockSidebarState.folders; },
 		get unfiledChannelIds() { return mockSidebarState.unfiledChannelIds; },
@@ -42,19 +42,19 @@ vi.mock('$lib/state/folders.svelte.js', () => ({
 	},
 }));
 
-vi.mock('$lib/state/drafts.svelte.js', () => ({
+vi.mock('#lib/state/drafts.svelte.js', () => ({
 	drafts: {
 		has: vi.fn(() => false)
 	}
 }));
 
-vi.mock('$lib/state/processes.svelte.js', () => ({
+vi.mock('#lib/state/processes.svelte.js', () => ({
 	processes: {
 		get activeChannelIds() { return mockSidebarState.activeChannelIds; }
 	}
 }));
 
-vi.mock('$lib/state/ui.svelte.js', () => ({
+vi.mock('#lib/state/ui.svelte.js', () => ({
 	ui: {
 		get isMobile() { return false; },
 		closeSidebar: vi.fn()

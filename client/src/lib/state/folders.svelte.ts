@@ -1,6 +1,6 @@
-import { api } from '$lib/api.js';
-import { channels } from '$lib/state/channels.svelte.js';
-import { FEEDBACK_CHANNEL_ID } from '$lib/constants.js';
+import { api } from '#lib/api.js';
+import { channels } from '#lib/state/channels.svelte.js';
+import { FEEDBACK_CHANNEL_ID } from '#lib/constants.js';
 
 export interface Folder {
 	id: string;

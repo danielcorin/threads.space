@@ -1,4 +1,4 @@
-import { api } from '$lib/api.js';
+import { api } from '#lib/api.js';
 
 // A process is one agent turn. It has no OS pid — it is identified by its own id, and
 // "cancel" is cooperative: the API marks it killed and signals the agent (WS + webhook).

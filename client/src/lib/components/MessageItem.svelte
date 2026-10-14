@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { auth } from '$lib/state/auth.svelte.js';
-	import { api } from '$lib/api.js';
-	import { renderMarkdown, extractMessageLinks } from '$lib/utils/markdown.js';
-	import { formatTime } from '$lib/utils/time.js';
-	import { formatFileSize, groupReactions } from '$lib/utils/messageDisplay.js';
-	import { messages, type Message as MessageType } from '$lib/state/messages.svelte.js';
-	import { thread } from '$lib/state/thread.svelte.js';
-	import { messageActions } from '$lib/state/message-actions.svelte.js';
+	import { auth } from '#lib/state/auth.svelte.js';
+	import { api } from '#lib/api.js';
+	import { renderMarkdown, extractMessageLinks } from '#lib/utils/markdown.js';
+	import { formatTime } from '#lib/utils/time.js';
+	import { formatFileSize, groupReactions } from '#lib/utils/messageDisplay.js';
+	import { messages, type Message as MessageType } from '#lib/state/messages.svelte.js';
+	import { thread } from '#lib/state/thread.svelte.js';
+	import { messageActions } from '#lib/state/message-actions.svelte.js';
 	import EmojiPicker from './EmojiPicker.svelte';
 	import ImageLightbox from './ImageLightbox.svelte';
 	import FileViewer from './FileViewer.svelte';
-	import type { Message } from '$lib/state/messages.svelte.js';
+	import type { Message } from '#lib/state/messages.svelte.js';
 	import FileIcon from 'phosphor-svelte/lib/File';
 	import DownloadSimple from 'phosphor-svelte/lib/DownloadSimple';
 	import Clock from 'phosphor-svelte/lib/Clock';
@@ -21,7 +21,7 @@
 	import StopCircle from 'phosphor-svelte/lib/StopCircle';
 	import ArrowClockwise from 'phosphor-svelte/lib/ArrowClockwise';
 	import CaretDown from 'phosphor-svelte/lib/CaretDown';
-	import { emojiPicker } from '$lib/state/emoji-picker.svelte.js';
+	import { emojiPicker } from '#lib/state/emoji-picker.svelte.js';
 	import Smiley from 'phosphor-svelte/lib/Smiley';
 	import ArrowBendUpLeft from 'phosphor-svelte/lib/ArrowBendUpLeft';
 	import Copy from 'phosphor-svelte/lib/Copy';
@@ -29,7 +29,7 @@
 	import PencilSimple from 'phosphor-svelte/lib/PencilSimple';
 	import Trash from 'phosphor-svelte/lib/Trash';
 	import PushPin from 'phosphor-svelte/lib/PushPin';
-	import { portal } from '$lib/utils/portal.js';
+	import { portal } from '#lib/utils/portal.js';
 
 	interface Props {
 		message: Message;

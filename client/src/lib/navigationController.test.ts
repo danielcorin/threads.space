@@ -16,14 +16,14 @@ const mocks = vi.hoisted(() => ({
 	setView: vi.fn(),
 }));
 
-vi.mock('$lib/api.js', () => ({
+vi.mock('#lib/api.js', () => ({
 	api: {
 		messages: { get: vi.fn() },
 		channels: { get: vi.fn() },
 	}
 }));
 
-vi.mock('$lib/state/channels.svelte.js', () => ({
+vi.mock('#lib/state/channels.svelte.js', () => ({
 	channels: {
 		get selectedId() { return mocks.channelId; },
 		get list() { return mocks.channels; },
@@ -33,7 +33,7 @@ vi.mock('$lib/state/channels.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/dms.svelte.js', () => ({
+vi.mock('#lib/state/dms.svelte.js', () => ({
 	dms: {
 		get selectedId() { return mocks.dmId; },
 		get list() { return mocks.dms; },
@@ -43,7 +43,7 @@ vi.mock('$lib/state/dms.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/messages.svelte.js', () => ({
+vi.mock('#lib/state/messages.svelte.js', () => ({
 	messages: {
 		requestAnchorLoad: vi.fn(),
 		consumeAnchorLoad: vi.fn(),
@@ -51,7 +51,7 @@ vi.mock('$lib/state/messages.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/navigation.svelte.js', () => ({
+vi.mock('#lib/state/navigation.svelte.js', () => ({
 	navigation: {
 		navigating: false,
 		push: mocks.push,
@@ -60,7 +60,7 @@ vi.mock('$lib/state/navigation.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/thread.svelte.js', () => ({
+vi.mock('#lib/state/thread.svelte.js', () => ({
 	thread: {
 		open: true,
 		close: mocks.threadClose,
@@ -68,11 +68,11 @@ vi.mock('$lib/state/thread.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/ui.svelte.js', () => ({
+vi.mock('#lib/state/ui.svelte.js', () => ({
 	ui: { setView: mocks.setView }
 }));
 
-vi.mock('$lib/state/folders.svelte.js', () => ({
+vi.mock('#lib/state/folders.svelte.js', () => ({
 	folders: {
 		get list() { return mocks.folders; },
 	}

@@ -4,9 +4,9 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { auth } from '$lib/state/auth.svelte.js';
-	import { ui } from '$lib/state/ui.svelte.js';
-	import { codeTheme } from '$lib/state/codeTheme.svelte.js';
+	import { auth } from '#lib/state/auth.svelte.js';
+	import { ui } from '#lib/state/ui.svelte.js';
+	import { codeTheme } from '#lib/state/codeTheme.svelte.js';
 
 	let { children } = $props();
 

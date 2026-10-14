@@ -5,7 +5,7 @@
 		buildAgentIntegrationPrompts,
 		resolveAgentIntegrationUrls,
 		type AgentIntegrationPromptKind,
-	} from '$lib/agentOnboarding.js';
+	} from '#lib/agentOnboarding.js';
 
 	interface Props {
 		/** Hide the built-in title when a parent Section already provides one. */

@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { renderMarkdown, renderInlineMarkdown } from '$lib/utils/markdown.js';
-	import { formatTime } from '$lib/utils/time.js';
-	import { processes } from '$lib/state/processes.svelte.js';
+	import { renderMarkdown, renderInlineMarkdown } from '#lib/utils/markdown.js';
+	import { formatTime } from '#lib/utils/time.js';
+	import { processes } from '#lib/state/processes.svelte.js';
 	import BrailleSpinner from './BrailleSpinner.svelte';
 	import Stop from 'phosphor-svelte/lib/Stop';
-	import type { Message } from '$lib/state/messages.svelte.js';
+	import type { Message } from '#lib/state/messages.svelte.js';
 
 	interface Props {
 		messages: Message[];

@@ -3,7 +3,7 @@
 // NULL we resolve to the default. Non-default selections are PATCHed back to
 // the API; reverting to default writes NULL.
 
-import { api } from '$lib/api.js';
+import { api } from '#lib/api.js';
 
 export interface CodeThemeOption {
 	key: string;

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { dms } from '$lib/state/dms.svelte.js';
-	import { ui } from '$lib/state/ui.svelte.js';
-	import { presence } from '$lib/state/presence.svelte.js';
-	import { processes } from '$lib/state/processes.svelte.js';
-	import { createLongPressDrag } from '$lib/useLongPressDrag.js';
+	import { dms } from '#lib/state/dms.svelte.js';
+	import { ui } from '#lib/state/ui.svelte.js';
+	import { presence } from '#lib/state/presence.svelte.js';
+	import { processes } from '#lib/state/processes.svelte.js';
+	import { createLongPressDrag } from '#lib/useLongPressDrag.js';
 	import Plus from 'phosphor-svelte/lib/Plus';
 
 	interface Props {

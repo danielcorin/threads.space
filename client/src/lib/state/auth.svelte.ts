@@ -1,5 +1,5 @@
-import { api, setUnauthorizedHandler, UnauthorizedError } from '$lib/api.js';
-import type { LoginResponse } from '$lib/api.js';
+import { api, setUnauthorizedHandler, UnauthorizedError } from '#lib/api.js';
+import type { LoginResponse } from '#lib/api.js';
 
 export interface User {
 	id: string;

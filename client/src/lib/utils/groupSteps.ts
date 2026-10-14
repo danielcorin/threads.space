@@ -1,4 +1,4 @@
-import type { Message } from '$lib/state/messages.svelte.js';
+import type { Message } from '#lib/state/messages.svelte.js';
 
 /**
  * Agent step message types. These are the intermediate tool-call / reasoning

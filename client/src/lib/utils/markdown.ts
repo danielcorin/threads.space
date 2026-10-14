@@ -12,7 +12,7 @@ import xml from 'highlight.js/lib/languages/xml';
 import css from 'highlight.js/lib/languages/css';
 import markdown from 'highlight.js/lib/languages/markdown';
 import diff from 'highlight.js/lib/languages/diff';
-import { codeTheme } from '$lib/state/codeTheme.svelte.js';
+import { codeTheme } from '#lib/state/codeTheme.svelte.js';
 
 // Register only the languages we need so the bundle doesn't pull in all ~100
 // hljs grammars. typescript covers tsx, javascript covers jsx, xml covers

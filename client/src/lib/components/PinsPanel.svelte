@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { pins, type PinnedMessage } from '$lib/state/pins.svelte.js';
-	import { ui } from '$lib/state/ui.svelte.js';
-	import { formatTime } from '$lib/utils/time.js';
+	import { pins, type PinnedMessage } from '#lib/state/pins.svelte.js';
+	import { ui } from '#lib/state/ui.svelte.js';
+	import { formatTime } from '#lib/utils/time.js';
 	import { onMount } from 'svelte';
 	import X from 'phosphor-svelte/lib/X';
 	import PushPin from 'phosphor-svelte/lib/PushPin';

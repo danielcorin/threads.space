@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { api } from '$lib/api.js';
-	import { dms } from '$lib/state/dms.svelte.js';
-	import { ui } from '$lib/state/ui.svelte.js';
+	import { api } from '#lib/api.js';
+	import { dms } from '#lib/state/dms.svelte.js';
+	import { ui } from '#lib/state/ui.svelte.js';
 	import MagnifyingGlass from 'phosphor-svelte/lib/MagnifyingGlass';
 	import ChatCircleDots from 'phosphor-svelte/lib/ChatCircleDots';
 	import Robot from 'phosphor-svelte/lib/Robot';
