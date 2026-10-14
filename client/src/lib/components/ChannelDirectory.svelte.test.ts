@@ -28,7 +28,7 @@ describe('ChannelDirectory', () => {
 	});
 
 	it('focuses the search input on open', async () => {
-		render(ChannelDirectory, { onclose });
+		await render(ChannelDirectory, { onclose });
 
 		const input = page.getByTestId('browse-search-input');
 		await expect.element(input).toBeVisible();

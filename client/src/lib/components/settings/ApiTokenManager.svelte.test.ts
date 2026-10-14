@@ -21,7 +21,7 @@ beforeEach(() => {
 
 describe('API token ownership', () => {
  it('issues a bot-owned runtime token and clears the one-time display when saved', async () => {
-  render(ApiTokenManager, { userId: 'aster-id', username: 'aster' });
+  await render(ApiTokenManager, { userId: 'aster-id', username: 'aster' });
   await expect.element(page.getByText('Tokens for @aster', { exact: true })).toBeVisible();
   await page.getByLabelText('Token name').fill('runtime');
   await page.getByLabelText('Expiry', { exact: true }).selectOptions('never');
@@ -36,7 +36,7 @@ describe('API token ownership', () => {
  it('confirms revocation and revokes the selected bot token rather than a personal token', async () => {
   vi.mocked(api.users.listApiTokensForUser).mockResolvedValue({ tokens: [{ id: 'existing-token', name: 'old-runtime', scopes: ['threads:read'], expires_at: null, created_at: 1, last_used_at: null }] });
   vi.mocked(api.users.revokeApiTokenForUser).mockResolvedValue({ ok: true, connections_closed: 1 });
-  render(ApiTokenManager, { userId: 'aster-id', username: 'aster' });
+  await render(ApiTokenManager, { userId: 'aster-id', username: 'aster' });
   await page.getByRole('button', { name: 'Revoke', exact: true }).click();
   await expect.element(page.getByText('Revoke API token', { exact: true })).toBeVisible();
   expect(api.users.revokeApiTokenForUser).not.toHaveBeenCalled();
@@ -48,7 +48,7 @@ describe('API token ownership', () => {
  });
 
  it('lets the admin explicitly grant provisioning scopes on a personal token', async () => {
-  render(ApiTokenManager, { allowProvisioning: true });
+  await render(ApiTokenManager, { allowProvisioning: true });
   await page.getByLabelText('Token name').fill('provisioning');
   await page.getByLabelText('Access', { exact: true }).selectOptions('provisioning');
   await page.getByRole('button', { name: 'Create token', exact: true }).click();

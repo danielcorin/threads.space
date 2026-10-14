@@ -65,13 +65,13 @@ describe('SearchPanel', () => {
 	});
 
 	it('renders search input', async () => {
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 		await expect.element(input).toBeVisible();
 	});
 
 	it('typing in: opens channel autocomplete dropdown', async () => {
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 		await input.fill('in:g');
 
@@ -86,7 +86,7 @@ describe('SearchPanel', () => {
 	});
 
 	it('selecting autocomplete item creates a pill', async () => {
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 		await input.fill('in:g');
 
@@ -103,7 +103,7 @@ describe('SearchPanel', () => {
 	});
 
 	it('backspace removes last pill when input is empty', async () => {
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 
 		// Create a pill first
@@ -123,7 +123,7 @@ describe('SearchPanel', () => {
 	});
 
 	it('typing bare "in:" (no further chars) opens autocomplete with channel suggestions', async () => {
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 		await input.fill('in:');
 
@@ -145,7 +145,7 @@ describe('SearchPanel', () => {
 			{ id: 'u1', username: 'alice', display_name: 'Alice' },
 		]);
 
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 		await input.fill('from:');
 
@@ -160,7 +160,7 @@ describe('SearchPanel', () => {
 	});
 
 	it('typing bare "before:" opens autocomplete with date presets', async () => {
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 		await input.fill('before:');
 
@@ -172,7 +172,7 @@ describe('SearchPanel', () => {
 	});
 
 	it('typing bare "after:" opens autocomplete with date presets', async () => {
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 		await input.fill('after:');
 
@@ -184,7 +184,7 @@ describe('SearchPanel', () => {
 	});
 
 	it('has: shows static options in autocomplete', async () => {
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 		await input.fill('has:');
 
@@ -201,7 +201,7 @@ describe('SearchPanel', () => {
 	it('selecting a channel result fires onchannelselect so the composer re-focuses', async () => {
 		const onchannelselect = vi.fn();
 		const { channels } = await import('#lib/state/channels.svelte.js');
-		render(SearchPanel, { onclose, onnavigatetomessage, onchannelselect });
+		await render(SearchPanel, { onclose, onnavigatetomessage, onchannelselect });
 
 		// "Jump to..." channel list shows on mount (empty query). Click #general.
 		const general = page.getByText('general', { exact: true });
@@ -213,7 +213,7 @@ describe('SearchPanel', () => {
 	});
 
 	it('escape closes the panel', async () => {
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 		const el = input.element() as HTMLInputElement;
 		el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
@@ -221,7 +221,7 @@ describe('SearchPanel', () => {
 	});
 
 	it('no duplicate pill chip row when pills are active', async () => {
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 
 		// Create a pill via autocomplete
@@ -248,7 +248,7 @@ describe('SearchPanel', () => {
 		mockRecentSearches = ['in:ch1 hello'];
 		mockDisplayMap = { 'in:ch1 hello': 'in:general hello' };
 
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 
 		// History items should be visible (input is empty on mount)
 		// The recent search text should show the display version
@@ -265,7 +265,7 @@ describe('SearchPanel', () => {
 			pills: [{ key: 'in', value: 'ch1', raw: 'in:ch1' }],
 		};
 
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 
 		// Input should contain the persisted free text
 		const input = page.getByTestId('search-input');
@@ -284,7 +284,7 @@ describe('SearchPanel', () => {
 			pills: [{ key: 'in', value: 'ch1', raw: 'in:ch1' }],
 		};
 
-		render(SearchPanel, { onclose, onnavigatetomessage });
+		await render(SearchPanel, { onclose, onnavigatetomessage });
 		const input = page.getByTestId('search-input');
 		await expect.element(input).toHaveValue('test search');
 		await expect.element(page.getByTestId('search-pill')).toBeVisible();
@@ -299,7 +299,7 @@ describe('SearchPanel', () => {
 
 	describe('mobile touch targets', () => {
 		it('pill remove button has mobile touch target classes', async () => {
-			render(SearchPanel, { onclose, onnavigatetomessage });
+			await render(SearchPanel, { onclose, onnavigatetomessage });
 			const input = page.getByTestId('search-input');
 			await input.fill('in:g');
 			const items = page.getByTestId('ac-item');
@@ -319,7 +319,7 @@ describe('SearchPanel', () => {
 		});
 
 		it('autocomplete items have mobile touch target class', async () => {
-			render(SearchPanel, { onclose, onnavigatetomessage });
+			await render(SearchPanel, { onclose, onnavigatetomessage });
 			const input = page.getByTestId('search-input');
 			await input.fill('in:');
 
@@ -334,7 +334,7 @@ describe('SearchPanel', () => {
 		it('close button flushes query persistence', async () => {
 			const { setLastQuery } = await import('#lib/searchHistory.js');
 
-			render(SearchPanel, { onclose, onnavigatetomessage });
+			await render(SearchPanel, { onclose, onnavigatetomessage });
 			const input = page.getByTestId('search-input');
 			await input.fill('hello world');
 
@@ -352,7 +352,7 @@ describe('SearchPanel', () => {
 
 		it('history action buttons are visible on mobile (not hidden behind hover)', async () => {
 			mockRecentSearches = ['test query'];
-			render(SearchPanel, { onclose, onnavigatetomessage });
+			await render(SearchPanel, { onclose, onnavigatetomessage });
 
 			// The remove button for a recent search should not have opacity-0 without md: prefix
 			const removeBtn = document.querySelector('button[aria-label="Remove recent search"]') as HTMLElement;
@@ -377,7 +377,7 @@ describe('SearchPanel', () => {
 				limit: 50,
 			});
 
-			render(SearchPanel, { onclose, onnavigatetomessage });
+			await render(SearchPanel, { onclose, onnavigatetomessage });
 			const input = page.getByTestId('search-input');
 
 			// Create a pill via autocomplete
@@ -402,7 +402,7 @@ describe('SearchPanel', () => {
 
 	describe('selected-row highlight', () => {
 		it('keyboard-highlighted row uses bg-[var(--color-bg-selected)] not bg-[var(--color-bg-hover)]', async () => {
-			render(SearchPanel, { onclose, onnavigatetomessage });
+			await render(SearchPanel, { onclose, onnavigatetomessage });
 
 			// The first channel row should be selected by default (selectedIndex=0)
 			// Find all buttons with data-search-index attribute

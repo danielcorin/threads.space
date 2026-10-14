@@ -35,7 +35,7 @@ const channel: Channel = {
 describe('ChannelHeader conversation mode toggle', () => {
 	test('switches a channel from timeline to task view', async () => {
 		const ontoggleConversationMode = vi.fn();
-		const screen = render(ChannelHeader, {
+		const screen = await render(ChannelHeader, {
 			props: { ...baseProps, channel, conversationMode: 'timeline', ontoggleConversationMode }
 		});
 
@@ -47,7 +47,7 @@ describe('ChannelHeader conversation mode toggle', () => {
 	});
 
 	test('offers the same view toggle in DMs', async () => {
-		const screen = render(ChannelHeader, {
+		const screen = await render(ChannelHeader, {
 			props: {
 				...baseProps,
 				channel: undefined,

@@ -140,7 +140,7 @@
 		{ label: 'file', value: 'file', detail: 'Messages with attachments' },
 	];
 
-	// Pure pill/filter helpers live in $lib/searchPills.ts; these thin wrappers
+	// Pure pill/filter helpers live in #lib/searchPills.ts; these thin wrappers
 	// bind them to the channel/DM stores.
 	function pillFilters(): Record<string, string> {
 		return computePillFilters(pills);

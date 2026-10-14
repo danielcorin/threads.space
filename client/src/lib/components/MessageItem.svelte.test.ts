@@ -68,7 +68,7 @@ function makeMessage(overrides: Partial<Message> = {}): Message {
 
 describe('MessageItem', () => {
 	test('renders message content', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: { message: makeMessage({ content: 'Test message content' }) }
 		});
 
@@ -78,7 +78,7 @@ describe('MessageItem', () => {
 	});
 
 	test('shows optimistic delivery state on a pending message', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					id: '~pending-1',
@@ -91,7 +91,7 @@ describe('MessageItem', () => {
 	});
 
 	test('surfaces a failed optimistic delivery', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					id: '~pending-1',
@@ -105,7 +105,7 @@ describe('MessageItem', () => {
 
 	test('collapses a resolved titled root to a title-only thread row', async () => {
 		const onreply = vi.fn();
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					content: 'Full root content should be hidden',
@@ -126,7 +126,7 @@ describe('MessageItem', () => {
 	});
 
 	test('keeps the root content visible until a titled thread is resolved', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					content: 'Still active',
@@ -142,7 +142,7 @@ describe('MessageItem', () => {
 	});
 
 	test('keeps resolved roots without titles expanded', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					content: 'Resolved but untitled',
@@ -166,7 +166,7 @@ describe('MessageItem', () => {
 		});
 
 		try {
-			const screen = render(MessageItem, {
+			const screen = await render(MessageItem, {
 				props: { message: makeMessage({ content: 'Copy this message' }) }
 			});
 
@@ -184,7 +184,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders display name', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: { message: makeMessage({ display_name: 'Alice Smith' }) }
 		});
 
@@ -192,7 +192,7 @@ describe('MessageItem', () => {
 	});
 
 	test('falls back to username when no display name', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: { message: makeMessage({ display_name: null, username: 'alice' }) }
 		});
 
@@ -200,7 +200,7 @@ describe('MessageItem', () => {
 	});
 
 	test('shows "[deleted]" for deleted messages', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					deleted_at: Date.now() / 1000,
@@ -213,7 +213,7 @@ describe('MessageItem', () => {
 	});
 
 	test('does not render content for deleted messages', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					deleted_at: Date.now() / 1000,
@@ -227,7 +227,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders system messages with italic style', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					type: 'system',
@@ -242,7 +242,7 @@ describe('MessageItem', () => {
 	});
 
 	test('shows "(edited)" for edited messages', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({ edited_at: Date.now() / 1000 })
 			}
@@ -252,7 +252,7 @@ describe('MessageItem', () => {
 	});
 
 	test('does not show "(edited)" for unedited messages', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: { message: makeMessage({ edited_at: null }) }
 		});
 
@@ -268,7 +268,7 @@ describe('MessageItem', () => {
 
 	test('shows reply count when replies exist', async () => {
 		const onreply = vi.fn();
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({ reply_count: 5 }),
 				onreply
@@ -280,7 +280,7 @@ describe('MessageItem', () => {
 
 	test('shows singular "reply" for count of 1', async () => {
 		const onreply = vi.fn();
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({ reply_count: 1 }),
 				onreply
@@ -291,7 +291,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders grouped reactions', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					reactions: [
@@ -309,7 +309,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders image attachments', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					attachments: [
@@ -331,7 +331,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders file attachments with size', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					attachments: [
@@ -371,7 +371,7 @@ describe('MessageItem', () => {
 		});
 
 		try {
-			const screen = render(MessageItem, {
+			const screen = await render(MessageItem, {
 				props: {
 					message: makeMessage({
 						attachments: [
@@ -422,7 +422,7 @@ describe('MessageItem', () => {
 		});
 
 		try {
-			const screen = render(MessageItem, {
+			const screen = await render(MessageItem, {
 				props: {
 					message: makeMessage({
 						attachments: [
@@ -467,7 +467,7 @@ describe('MessageItem', () => {
 		});
 
 		try {
-			const screen = render(MessageItem, {
+			const screen = await render(MessageItem, {
 				props: {
 					message: makeMessage({
 						attachments: [
@@ -497,7 +497,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders link preview', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					linkPreviews: [
@@ -522,7 +522,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders process status badges', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({ process_status: 'processing' })
 			}
@@ -532,7 +532,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders queued process status', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({ process_status: 'queued' })
 			}
@@ -542,7 +542,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders done process status', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({ process_status: 'done' })
 			}
@@ -552,7 +552,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders error process status', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({ process_status: 'error' })
 			}
@@ -562,7 +562,7 @@ describe('MessageItem', () => {
 	});
 
 	test('shows error details affordance when error text is available', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					process_status: 'error',
@@ -577,7 +577,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders stopped process status', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({ process_status: 'killed' })
 			}
@@ -587,7 +587,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders restarted process status', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({ process_status: 'restarted' })
 			}
@@ -597,7 +597,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders memories details when present', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					metadata: {
@@ -615,7 +615,7 @@ describe('MessageItem', () => {
 	});
 
 	test('shows plural "memories" for multiple', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					metadata: {
@@ -634,7 +634,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders memory search details when present', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({
 					metadata: {
@@ -650,7 +650,7 @@ describe('MessageItem', () => {
 	});
 
 	test('renders markdown in message content', async () => {
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage({ content: '**bold text**' })
 			}
@@ -663,7 +663,7 @@ describe('MessageItem', () => {
 
 	test('timestamp is clickable when ontimestampclick is provided', async () => {
 		const ontimestampclick = vi.fn();
-		const screen = render(MessageItem, {
+		const screen = await render(MessageItem, {
 			props: {
 				message: makeMessage(),
 				ontimestampclick

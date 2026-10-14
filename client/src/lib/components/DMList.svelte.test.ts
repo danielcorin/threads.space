@@ -83,7 +83,7 @@ describe('DMList', () => {
 
 	test('renders human DM partner without restart controls', async () => {
 		mockDms.push(makeDm());
-		const screen = render(DMList, { props: { onnewdm: vi.fn() } });
+		const screen = await render(DMList, { props: { onnewdm: vi.fn() } });
 
 		await expect.element(screen.getByText('Alice')).toBeInTheDocument();
 		expect(screen.getByText('Alice').element().closest('button'))
@@ -97,7 +97,7 @@ describe('DMList', () => {
 			partner: { id: 'bot-1', username: 'filae', display_name: 'Filae', name_color: null, role: 'bot' },
 		}));
 		mockOnlineUsers.add('bot-1');
-		const screen = render(DMList, { props: { onnewdm: vi.fn() } });
+		const screen = await render(DMList, { props: { onnewdm: vi.fn() } });
 
 		await expect.element(screen.getByText('Filae')).toBeInTheDocument();
 		expect(screen.container.querySelector('[title="Restart bot"], [title="Bot offline"]')).toBeNull();
@@ -111,7 +111,7 @@ describe('DMList', () => {
 		mockOnlineUsers.add('bot-1');
 		mockActiveChannelIds.add('dm-bot');
 
-		const screen = render(DMList, { props: { onnewdm: vi.fn() } });
+		const screen = await render(DMList, { props: { onnewdm: vi.fn() } });
 
 		const indicator = screen.getByTitle('Bot is responding');
 		await expect.element(indicator).toBeInTheDocument();
@@ -123,7 +123,7 @@ describe('DMList', () => {
 		mockOnlineUsers.add('user-1');
 		mockActiveChannelIds.add('dm-1');
 
-		const screen = render(DMList, { props: { onnewdm: vi.fn() } });
+		const screen = await render(DMList, { props: { onnewdm: vi.fn() } });
 
 		await expect.element(screen.getByText('Alice')).toBeInTheDocument();
 		expect(screen.container.querySelector('[title="Bot is responding"]')).toBeNull();
