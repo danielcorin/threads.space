@@ -558,7 +558,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * GET /users/:id/api-tokens
+         * @description List non-revoked API token metadata for another user. Requires an admin session or an admin bearer token with tokens:manage. Includes scopes, expiry and last use; never returns raw tokens or credential verifiers.
+         */
+        get: operations["getUsersIdApiTokens"];
         put?: never;
         /**
          * POST /users/:id/api-tokens
@@ -822,7 +826,7 @@ export interface paths {
         put?: never;
         /**
          * POST /channels/:id/members
-         * @description Add a user to a channel by user id or username. The caller must be a current member.
+         * @description Add a user to a channel by user id or username, restoring a membership that previously left. The caller must be a current member. Notify the added user's devices via member_added and Web Push with the inviter, channel name, and channel deep link. Push respects disabled user and muted channel preferences; mentions-only users remain eligible for this directed notification. Adding an existing active member is a no-op and does not notify again. Bots and self-adds do not receive push.
          */
         post: operations["postChannelsIdMembers"];
         delete?: never;
@@ -2532,7 +2536,9 @@ export interface components {
             deletedAt?: number | null;
             message_type?: components["schemas"]["MessageType"] | null;
             messageType?: components["schemas"]["MessageType"] | null;
+            /** @description Number of non-deleted human and final response replies. Progress, tool output, and thinking rows are excluded. */
             reply_count?: number | null;
+            /** @description Number of non-deleted human and final response replies. Progress, tool output, and thinking rows are excluded. */
             replyCount?: number | null;
             pinned?: number | boolean | null;
             mentions?: components["schemas"]["MessageMention"][];
@@ -4290,6 +4296,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    getUsersIdApiTokens: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyApiTokenListResponse"];
                 };
             };
             400: components["responses"]["Error"];

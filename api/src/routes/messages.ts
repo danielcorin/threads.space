@@ -131,6 +131,7 @@ export async function handleDeleteMessage(env: Env, user: User, messageId: strin
     .bind(messageId).first<Message>();
   if (!msg) return errorResponse('Message not found', 404);
   if (msg.user_id !== user.id) return errorResponse('Forbidden', 403);
+  if (msg.deleted_at) return jsonResponse({ ok: true });
 
   await env.DB.prepare('UPDATE messages SET deleted_at = ? WHERE id = ?')
     .bind(Math.floor(Date.now() / 1000), messageId).run();
@@ -140,6 +141,7 @@ export async function handleDeleteMessage(env: Env, user: User, messageId: strin
     type: 'message_deleted',
     id: messageId,
     threadId: msg.thread_id,
+    messageType: msg.message_type ?? 'human',
   });
 
   return jsonResponse({ ok: true });

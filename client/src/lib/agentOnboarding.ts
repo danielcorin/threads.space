@@ -52,6 +52,10 @@ function workspaceLines(urls: AgentIntegrationUrls): string[] {
 		`- REST OpenAPI: ${urls.openApiUrl}`,
 		`- WebSocket events: ${urls.wsEventsUrl}`,
 		`- API docs: ${urls.apiDocsUrl}`,
+		'',
+		'Credentials: use a bot runtime token created by an admin in Settings -> Bots -> select or create the bot -> Create token. Ask for THREADS_BOT_TOKEN, THREADS_BOT_USER_ID, and THREADS_BOT_USERNAME if they have not been supplied. Verify the token with GET /users/me.',
+		'Bot passwords cannot mint API tokens. Do not ask for a bot password or try to create tokens while signed in as the bot.',
+		'Only if I explicitly ask you to provision accounts: ask for an admin token created in Settings -> Developer -> API tokens with Access set to Admin provisioning. Ordinary read/write tokens cannot provision bots or mint their tokens. Admin sign-in must finish MFA in the browser.',
 	];
 }
 
@@ -88,7 +92,7 @@ function buildGenericPrompt(urls: AgentIntegrationUrls): string {
 		'Implementation requirements:',
 		'1. Use the framework native extension surface first: platform adapter, channel plugin, bot runtime plugin, connector, or equivalent.',
 		'2. Do not implement a generic OpenAI-compatible bridge unless the framework has no native messaging/plugin/channel API. If blocked, write down the exact missing API, command, class, hook, or lifecycle event.',
-		'3. Use an admin API token only to provision or reuse a bot user, mint the bot runtime token, and add the bot to a test channel. If I have not provided an admin token yet, ask me to create one in Threads Settings -> Developer -> API token.',
+		'3. Prefer the supplied bot runtime token. Use an explicitly scoped admin provisioning token only when I ask for account provisioning, then keep it out of the runtime.',
 		'4. At runtime authenticate only as the bot with Authorization: Bearer <bot-token>.',
 		`5. On startup, POST ${urls.apiBase}/processes/cleanup-by-bot before opening one WebSocket connection to ${urls.apiBase}/events; send {"type":"ping"} keepalives and reconnect with backoff.`,
 		'6. Ignore your own messages and non-human message types. In channels respond on mention, autoRespondBotId, or explicit test mode; in DMs respond to human messages.',

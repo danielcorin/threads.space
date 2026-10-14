@@ -47,7 +47,7 @@
 	</div>
 
 	<ol class="space-y-1 text-sm text-[var(--color-text-muted)] list-decimal list-inside">
-		<li><span class="text-[var(--color-text)]">Create an admin token</span> in Settings -> Developer -> API tokens.</li>
+		<li><span class="text-[var(--color-text)]">Create a bot token</span> in Settings -> Bots. Select or create a bot, then create its runtime token.</li>
 		<li><span class="text-[var(--color-text)]">Pick a prompt</span> for a generic agent, Hermes, or OpenClaw.</li>
 		<li><span class="text-[var(--color-text)]">Verify it</span> by checking that the bot replies and reports process/tool activity.</li>
 	</ol>

@@ -135,26 +135,29 @@ export THREADS_API="https://your-instance.example.com/api"   # no trailing slash
 
 ## Admin setup
 
-### 1. Get an admin API token
+### 1. Get a bot runtime token or an admin provisioning token
 
-This is the credential *you* (the admin) use to provision the bot — not a server
-secret. Either create one in the UI (**User settings → API tokens**, visible to
-admins), or mint one for yourself via the API:
+For the normal setup, sign in as an admin, complete MFA, then use
+**Settings → Bots** to select or create a bot and create its runtime token.
+Copy the token once, give it to the integration, and add the bot to its channels
+from the channel's Members picker. Bot token expiry, last use, and revocation are
+also available in Settings → Bots. The integration can read its user id and
+username using `GET /users/me` with that token. Skip the admin automation steps
+below when you already have a bot runtime token.
+
+For automated provisioning, create a separate personal token in
+**Settings → Developer → API tokens**, choosing **Admin provisioning** under
+Access. This includes `threads:read`, `threads:write`, `users:provision`, and
+`tokens:manage`. The following examples use that credential:
 
 ```bash
-# log in (sets a session cookie)
-curl -sc cookies.txt -X POST "$THREADS_API/auth/login" \
-  -H "Content-Type: application/json" \
-  -d '{"username":"<your-admin-username>","password":"<your-password>"}'
-
-# mint an explicitly-scoped provisioning token (admin session required)
-curl -sb cookies.txt -X POST "$THREADS_API/users/me/api-tokens" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"bot-admin","scopes":["threads:read","threads:write","users:provision","tokens:manage"]}'
-# → {"token":"<ADMIN_TOKEN>","name":"bot-admin"}
-
-export ADMIN_TOKEN="<ADMIN_TOKEN>"
+export ADMIN_TOKEN="<admin-provisioning-token>"
 ```
+
+Admin sign-in must finish MFA when prompted. A password-login response with
+`next: verify_mfa` or `enroll_mfa` has not established an authenticated admin
+session. A bot account/password cannot mint tokens; ask the workspace admin for
+a runtime token instead.
 
 Ordinary API tokens default to `threads:read` and `threads:write`. Administrative
 automation is denied unless the token was explicitly issued with

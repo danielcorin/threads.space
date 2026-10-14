@@ -3,10 +3,10 @@
   "version": "0.0.1",
   "files": {
     "contracts/threads.json": {
-      "sha256": "760a13482cb014bc4decb08d20823107ad4494587915ea3a52d15ab31a5ebc7f"
+      "sha256": "7108d62ace6b4614458dca5d9fb6a6dce2c5a107c4fcb08dad9b301aaa306d41"
     },
     "contracts/ws-events.yaml": {
-      "sha256": "7d1e3952b055aa712e0607f16ca135d402c95f82506148ae500ce6e7d02f7308"
+      "sha256": "78d82adc23e71faddb5f243ed5dfeeb9c9dfa2e8781326531db0633f7fe68774"
     }
   }
 }

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('$lib/state/auth.svelte.js', () => ({
 	auth: { user: { id: 'me' } }
@@ -17,6 +17,8 @@ vi.mock('$lib/state/messages.svelte.js', () => ({
 	messages: {
 		addMessage: vi.fn(),
 		incrementReplyCount: vi.fn(),
+		decrementReplyCount: vi.fn(),
+		removeMessage: vi.fn(),
 		updateMessage: vi.fn(),
 		updateThreadProcessStatus: vi.fn()
 	}
@@ -25,6 +27,7 @@ vi.mock('$lib/state/messages.svelte.js', () => ({
 vi.mock('$lib/state/thread.svelte.js', () => ({
 	thread: {
 		addReply: vi.fn(),
+		removeReply: vi.fn(),
 		updateReply: vi.fn()
 	}
 }));
@@ -84,8 +87,32 @@ function makeWs() {
 
 describe('useChannelSocket member_added', () => {
 	beforeEach(() => {
+		vi.useFakeTimers();
 		vi.clearAllMocks();
 		(channels as any).list = [{ id: 'current-ch' }];
+	});
+	afterEach(() => { vi.clearAllTimers(); vi.useRealTimers(); });
+
+	it.each(['message', 'new_message'])('counts only human and final replies for %s events while retaining traces', (event) => {
+		const ws = makeWs();
+		setupChannelSocket(ws as any, 'current-ch', () => [], () => {});
+		for (const messageType of ['human', 'response', 'progress', 'tool_output', 'thinking', undefined]) {
+			const message = { id: `reply-${messageType}`, channelId: 'current-ch', threadId: 'root', content: 'Reply', messageType };
+			ws.emit(event, event === 'new_message' ? { message } : message);
+		}
+		expect(thread.addReply).toHaveBeenCalledTimes(6);
+		expect(messages.incrementReplyCount).toHaveBeenCalledTimes(3);
+		expect(messages.incrementReplyCount).toHaveBeenCalledWith('root');
+	});
+
+	it('decrements only deleted conversation replies, even when the thread is closed', () => {
+		const ws = makeWs();
+		setupChannelSocket(ws as any, 'current-ch', () => [], () => {});
+		for (const messageType of ['tool_output', 'progress', 'thinking', 'human', 'response']) {
+			ws.emit('message_deleted', { id: `reply-${messageType}`, threadId: 'root', messageType });
+		}
+		expect(thread.removeReply).toHaveBeenCalledTimes(5);
+		expect(messages.decrementReplyCount).toHaveBeenCalledTimes(2);
 	});
 
 	it('refreshes the channel list when I am added to a channel not in my sidebar', () => {

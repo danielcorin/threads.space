@@ -18,6 +18,15 @@ export type ApiTokenScope =
 	| 'users:provision'
 	| 'tokens:manage';
 
+export interface ApiTokenSummary {
+	id: string;
+	name: string;
+	scopes: ApiTokenScope[];
+	expires_at: number | null;
+	created_at: number;
+	last_used_at: number | null;
+}
+
 export interface CurrentUserResponse {
 	id: string;
 	username: string;
@@ -416,6 +425,16 @@ export const api = {
 			}>('/users/me/api-tokens'),
 		revokeApiToken: (id: string) =>
 			request<{ ok: boolean; connections_closed: number }>(`/users/me/api-tokens/${id}`, { method: 'DELETE' }),
+		createApiTokenForUser: (userId: string, name: string, scopes: ApiTokenScope[], expiresInDays: number | null) =>
+			request<{ token: string; id: string; name: string; scopes: ApiTokenScope[]; expires_at: number | null }>(
+				`/users/${encodeURIComponent(userId)}/api-tokens`, {
+					method: 'POST', body: JSON.stringify({ name, scopes, expires_in_days: expiresInDays })
+				}),
+		listApiTokensForUser: (userId: string) =>
+			request<{ tokens: ApiTokenSummary[] }>(`/users/${encodeURIComponent(userId)}/api-tokens`),
+		revokeApiTokenForUser: (userId: string, tokenId: string) =>
+			request<{ ok: boolean; connections_closed: number }>(
+				`/users/${encodeURIComponent(userId)}/api-tokens/${encodeURIComponent(tokenId)}`, { method: 'DELETE' }),
 		search: (query: string, channelId?: string) =>
 			request<any[]>(
 				`/users/search?q=${encodeURIComponent(query)}${channelId ? `&channel=${channelId}` : ''}`

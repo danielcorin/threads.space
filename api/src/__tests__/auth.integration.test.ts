@@ -264,6 +264,48 @@ describe('Auth', () => {
       expect(me.role).toBe('bot');
     });
 
+    it('lists only non-secret token metadata scoped to the requested user and excludes revoked tokens', async () => {
+      const issued = await authedFetch(adminToken, `/users/${botId}/api-tokens`, {
+        method: 'POST', body: JSON.stringify({ name: 'inventory', scopes: ['threads:read'], expires_in_days: 30 }),
+      });
+      const created = await issued.json() as any;
+      const list = await authedFetch(adminToken, `/users/${botId}/api-tokens`);
+      expect(list.status).toBe(200);
+      const body = await list.json() as any;
+      const summary = body.tokens.find((entry: any) => entry.id === created.id);
+      expect(summary).toEqual({
+        id: created.id, name: 'inventory', scopes: ['threads:read'],
+        expires_at: created.expires_at, created_at: expect.any(Number), last_used_at: null,
+      });
+      expect(JSON.stringify(body)).not.toContain(created.token);
+      expect(JSON.stringify(body)).not.toContain('token_verifier');
+      const personal = await authedFetch(adminToken, '/users/me/api-tokens');
+      expect((await personal.json() as any).tokens.some((entry: any) => entry.id === created.id)).toBe(false);
+      expect((await authedFetch(adminToken, `/users/${botId}/api-tokens/${created.id}`, { method: 'DELETE' })).status).toBe(200);
+      const after = await authedFetch(adminToken, `/users/${botId}/api-tokens`);
+      expect((await after.json() as any).tokens.some((entry: any) => entry.id === created.id)).toBe(false);
+    });
+
+    it('gates token inventory on admin privilege and explicit bearer management scope', async () => {
+      expect((await fetch(`${BASE_URL}/users/${botId}/api-tokens`)).status).toBe(401);
+      const other = await loginUser('tok_nonadmin');
+      expect((await authedFetch(other.sessionToken, `/users/${botId}/api-tokens`)).status).toBe(403);
+      expect((await authedFetch(adminToken, '/users/does-not-exist/api-tokens')).status).toBe(404);
+      for (const allowed of [false, true]) {
+        const issued = await authedFetch(adminToken, '/users/me/api-tokens', {
+          method: 'POST', body: JSON.stringify({ name: `list-manager-${allowed}`, scopes: allowed ? ['threads:read', 'tokens:manage'] : ['threads:read'] }),
+        });
+        const token = (await issued.json() as any).token;
+        const response = await fetch(`${BASE_URL}/users/${botId}/api-tokens`, { headers: { Authorization: `Bearer ${token}` } });
+        expect(response.status).toBe(allowed ? 200 : 403);
+      }
+      const botIssued = await authedFetch(adminToken, `/users/${botId}/api-tokens`, {
+        method: 'POST', body: JSON.stringify({ name: 'bot-cannot-manage', scopes: ['threads:read', 'tokens:manage'] }),
+      });
+      const botToken = (await botIssued.json() as any).token;
+      expect((await fetch(`${BASE_URL}/users/${botId}/api-tokens`, { headers: { Authorization: `Bearer ${botToken}` } })).status).toBe(403);
+    });
+
     it('enforces read-only token scope on REST requests', async () => {
       const res = await authedFetch(adminToken, `/users/${botId}/api-tokens`, {
         method: 'POST',

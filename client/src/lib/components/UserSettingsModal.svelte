@@ -6,6 +6,7 @@
 	import SecurityTab from './settings/SecurityTab.svelte';
 	import PreferencesTab from './settings/PreferencesTab.svelte';
 	import AdminTab from './settings/AdminTab.svelte';
+	import BotsTab from './settings/BotsTab.svelte';
 	import DeveloperTab from './settings/DeveloperTab.svelte';
 
 	interface Props {
@@ -16,7 +17,7 @@
 
 	const isAdmin = $derived(!!auth.user?.is_admin);
 
-	type Tab = 'profile' | 'security' | 'preferences' | 'admin' | 'developer';
+	type Tab = 'profile' | 'security' | 'preferences' | 'admin' | 'bots' | 'developer';
 
 	// Returning from an email-confirmation link lands directly on Security,
 	// where SecurityTab shows the result.
@@ -32,6 +33,7 @@
 		...(isAdmin
 			? [
 					{ id: 'admin' as const, label: 'Admin', blurb: 'Workspace-wide security policy and members.' },
+					{ id: 'bots' as const, label: 'Bots', blurb: 'Bot accounts and runtime API tokens.' },
 					{ id: 'developer' as const, label: 'Developer', blurb: 'API access and agent integration.' }
 				]
 			: [])
@@ -68,6 +70,7 @@
 	<div class:hidden={activeTab !== 'preferences'}><PreferencesTab /></div>
 	{#if isAdmin}
 		<div class:hidden={activeTab !== 'admin'}><AdminTab /></div>
+		<div class:hidden={activeTab !== 'bots'}><BotsTab /></div>
 		<div class:hidden={activeTab !== 'developer'}><DeveloperTab /></div>
 	{/if}
 

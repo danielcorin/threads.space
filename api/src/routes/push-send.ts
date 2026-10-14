@@ -19,6 +19,53 @@ interface PushPayloadContext {
   body: string;
 }
 
+interface PushSubscription {
+  id: string;
+  user_id: string;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  failure_count: number;
+}
+
+/** Membership additions are directed notifications, including for mentions-only users. */
+export async function sendChannelMemberAddedPush(env: Env, ctx: {
+  channelId: string;
+  targetUserId: string;
+  senderId: string;
+  senderName: string;
+}): Promise<void> {
+  if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY || ctx.targetUserId === ctx.senderId) return;
+
+  const channel = await env.DB.prepare(`
+    SELECT c.name FROM channels c
+    JOIN channel_members cm ON cm.channel_id = c.id
+    JOIN users u ON u.id = cm.user_id
+    LEFT JOIN push_preferences p ON p.user_id = u.id
+    WHERE c.id = ? AND cm.user_id = ? AND cm.left_at IS NULL
+      AND cm.notifications != 'none' AND c.is_dm = 0
+      AND COALESCE(u.role, 'human') != 'bot' AND COALESCE(p.enabled, 1) = 1
+  `).bind(ctx.channelId, ctx.targetUserId).first<{ name: string }>();
+  if (!channel) return;
+
+  const subscriptions = await env.DB.prepare(
+    'SELECT id, user_id, endpoint, p256dh, auth, failure_count FROM push_subscriptions WHERE user_id = ?',
+  ).bind(ctx.targetUserId).all<PushSubscription>();
+  if (!subscriptions.results.length) return;
+
+  // Unlike ambient message alerts, an explicit addition should reach the user's
+  // subscribed devices even when another client is currently active.
+  const payload = JSON.stringify({
+    type: 'member_added',
+    title: `#${channel.name}`,
+    body: `${ctx.senderName} added you to #${channel.name}`,
+    tag: `membership:${ctx.channelId}`,
+    channelId: ctx.channelId,
+    url: `/?channel=${encodeURIComponent(ctx.channelId)}`,
+  });
+  await deliverPushNotifications(env, subscriptions.results, payload);
+}
+
 export function buildMessagePushPayload(ctx: PushPayloadContext): string {
   const url = `/?channel=${encodeURIComponent(ctx.channelId)}&msg=${encodeURIComponent(ctx.messageId)}`;
   return JSON.stringify({
@@ -112,7 +159,7 @@ export async function sendPushNotifications(env: Env, ctx: PushContext): Promise
   const subPlaceholders = eligibleUserIds.map(() => '?').join(',');
   const subscriptions = await env.DB.prepare(
     `SELECT id, user_id, endpoint, p256dh, auth, failure_count FROM push_subscriptions WHERE user_id IN (${subPlaceholders})`
-  ).bind(...eligibleUserIds).all<{ id: string; user_id: string; endpoint: string; p256dh: string; auth: string; failure_count: number }>();
+  ).bind(...eligibleUserIds).all<PushSubscription>();
 
   if (!subscriptions.results.length) return;
 
@@ -129,6 +176,12 @@ export async function sendPushNotifications(env: Env, ctx: PushContext): Promise
     title,
     body,
   });
+
+  await deliverPushNotifications(env, subscriptions.results, payload);
+}
+
+async function deliverPushNotifications(env: Env, subscriptions: PushSubscription[], payload: string): Promise<void> {
+  if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) return;
 
   const vapidKeys = {
     publicKey: env.VAPID_PUBLIC_KEY,
@@ -152,7 +205,7 @@ export async function sendPushNotifications(env: Env, ctx: PushContext): Promise
 
   // Send to all subscriptions, handle 410 Gone by deleting stale subscriptions
   const results = await Promise.allSettled(
-    subscriptions.results.map(async (sub) => {
+    subscriptions.map(async (sub) => {
       try {
         const res = await sendPushNotification(
           { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
