@@ -9,7 +9,7 @@ import { createMessageResponse, handleListMessages, handleListInbox, handleSendM
 import { handleAddReaction, handleRemoveReaction } from './reactions.js';
 import { handleSearch } from './search.js';
 import { handleUpload, handleGetUpload } from './uploads.js';
-import { handleGetMe, handleUpdateMe, handleSearchUsers, handleListBots, handleGetFrequentEmojis, handleUpdateSelfCapabilities, handleCreateUser, handleCreateMyApiToken, handleCreateApiTokenForUser, handleListMyApiTokens, handleRevokeMyApiToken, handleResetPasswordForUser, handleDeleteUser, handleRevokeApiTokenForUser } from './users.js';
+import { handleGetMe, handleUpdateMe, handleSearchUsers, handleListBots, handleGetFrequentEmojis, handleUpdateSelfCapabilities, handleCreateUser, handleCreateMyApiToken, handleCreateApiTokenForUser, handleListMyApiTokens, handleListApiTokensForUser, handleRevokeMyApiToken, handleResetPasswordForUser, handleDeleteUser, handleRevokeApiTokenForUser } from './users.js';
 import { handleCreateWebhook, handleDeleteWebhook, handleListWebhooks } from './webhooks.js';
 import { handleConfirmEmail, handleRequestEmailChange, handleResendEmailVerification } from './email-verification.js';
 import {
@@ -70,6 +70,7 @@ export const CORE_ROUTE_INVENTORY = [
   { method: 'GET', path: '/users/me/webhooks' },
   { method: 'POST', path: '/users/me/webhooks' },
   { method: 'DELETE', path: '/users/me/webhooks/:id' },
+  { method: 'GET', path: '/users/:id/api-tokens' },
   { method: 'POST', path: '/users/:id/api-tokens' },
   { method: 'POST', path: '/users/:id/reset-password' },
   { method: 'DELETE', path: '/users/:id/api-tokens/:tokenId' },
@@ -240,6 +241,7 @@ export function registerBasicAuthenticatedRoutes(authed: ThreadsApp): void {
   authed.delete('/users/me/webhooks/:id', (c) => handleDeleteWebhook(c.env, c.get('user'), c.req.param('id')));
   // Param route registered AFTER the static /users/me/* routes so "me" is not
   // captured as :id (Hono prioritizes static segments, but keep order explicit).
+  authed.get('/users/:id/api-tokens', (c) => handleListApiTokensForUser(c.env, c.get('principal'), c.req.param('id')));
   authed.post('/users/:id/api-tokens', (c) => handleCreateApiTokenForUser(c.req.raw, c.env, c.get('principal'), c.req.param('id')));
   // Admin-only operator actions on other users (session or narrow bearer scope),
   // replacing the old X-Admin-Key `/admin/*` endpoints.

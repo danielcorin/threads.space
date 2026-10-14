@@ -12,7 +12,7 @@ Key facts an agent should internalize first:
 - A bot authenticates with an **API token** (`Authorization: Bearer <token>`) for REST, the WebSocket upgrade, and webhook management. Bots have no session cookie.
 - An MCP-capable agent can use the same token with the instance's hosted **MCP server** at `https://<instance>/mcp` to discover and call curated Threads tools directly. MCP is request/response; use `/events` or webhooks for an always-on bot that needs live inbound messages.
 - A bot hears about activity over a WebSocket it holds open — **recommended: one `GET /events` socket for all of its channels/DMs**; `GET /ws/:channelId` is the per-channel option for typing signals — or over signed webhooks registered on the bot user. Webhooks are at-least-once and require idempotent handlers.
-- Provisioning is **self-service for any admin** using their own token. No server secret and no shell access are needed.
+- An admin can create bot accounts and runtime tokens in **Settings → Bots**. Admin automation uses an explicitly scoped provisioning token. No server secret or shell access is needed.
 - Provisioning only creates identity, credentials, capabilities, and channel/DM membership. A bot will not answer until a real adapter/plugin/process is installed, running, connected to `/events` or webhooks, and sending replies over REST.
 - Replace `<instance>` below with the deployment origin. On a **combined** client+API deployment the REST API is under **`/api`** (`https://<instance>/api`); a standalone API host omits the prefix. The WebSocket URL is the API base with the scheme swapped to `wss://`; webhook receiver URLs are HTTPS endpoints you operate.
 
@@ -76,29 +76,48 @@ openapi-python-client generate --url https://<instance>/api/openapi.json
 
 ## Provision a bot (any admin, self-service)
 
-Four steps with an explicitly-scoped admin API token — no server secret:
+### Recommended: create the runtime token in Settings
+
+1. Sign in to the target instance as an admin and complete MFA if prompted.
+2. Open **Settings → Bots**. Select an existing bot, or choose **New bot** and create one.
+3. Choose a token name, read/write access, and expiry, then **Create token**.
+4. Copy the token immediately; it is shown once. Give the integration this runtime
+   token, the bot's user id and username, and the instance API base. The bot id is
+   available from `GET /users/me` authenticated with its token.
+5. Add the bot to the channels it should access using the channel's **Members** picker.
+
+Settings → Bots also lists token expiry and last use and lets an admin revoke a
+bot token. Revocation disconnects clients authenticated with that token.
+
+A bot account/password cannot create tokens, including its own. If an agent
+already has a runtime token, skip provisioning and verify its identity with
+`GET /users/me`. If credentials are missing, ask the operator to create the bot
+runtime token in Settings; do not ask for the bot's password or admin password.
+
+### Optional: admin provisioning automation
+
+Only use this flow when the operator requests automated account provisioning.
+The admin signs in through the browser, completes MFA, then creates a token in
+**Settings → Developer → API tokens**, choosing **Admin provisioning** under
+Access. This grants `threads:read`, `threads:write`, `users:provision`, and
+`tokens:manage`. Ordinary read/write tokens cannot provision accounts or mint
+bot tokens. A password login that returns `next: verify_mfa` or `enroll_mfa` is
+not a completed admin session.
+
+Keep the provisioning token separate from the bot runtime credential. Do not
+retain it in the adapter's runtime configuration.
 
 ```bash
 export THREADS_API="https://<instance>/api"   # no trailing slash
-
-# 1. Mint an admin provisioning token for yourself from an interactive session.
-curl -sc cookies.txt -X POST "$THREADS_API/auth/login" \
-  -H "Content-Type: application/json" \
-  -d '{"username":"<admin-username>","password":"<password>"}'
-curl -sb cookies.txt -X POST "$THREADS_API/users/me/api-tokens" \
-  -H "Content-Type: application/json" \
-  -d '{"name":"bot-admin","scopes":["threads:read","threads:write","users:provision","tokens:manage"]}'
-# → {"token":"<ADMIN_TOKEN>", ...}
-export ADMIN_TOKEN="<ADMIN_TOKEN>"
-
-# 2. Create the bot user (role: "bot"). The password is unused at runtime.
+export ADMIN_TOKEN="<admin-provisioning-token>"
+# Create the bot user (role: "bot"). The password is unused at runtime.
 curl -s -X POST "$THREADS_API/users" \
   -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \
   -d '{"username":"my-agent","displayName":"My Agent","password":"'"$(openssl rand -hex 24)"'","role":"bot"}'
 # → {"id":"<BOT_ID>", ...}
 export BOT_ID="<BOT_ID>"
 
-# 3. Mint the bot's runtime API token (shown once; used for WS + REST).
+# Mint the bot's runtime API token (shown once; used for WS + REST).
 curl -s -X POST "$THREADS_API/users/$BOT_ID/api-tokens" \
   -H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json" \
   -d '{"name":"my-agent-runtime"}'
@@ -109,7 +128,7 @@ export BOT_TOKEN="<BOT_TOKEN>"
 # -d '{"name":"my-agent-runtime","webhook_urls":["https://agent.example.com/threads/webhook"]}'
 # → {"token":"<BOT_TOKEN>","webhooks":[{"id":"<WEBHOOK_ID>","secret":"<WEBHOOK_SECRET>", ...}], ...}
 
-# 4. Put the bot in a channel (it must be a current member, or WS/webhook/sends fail).
+# Put the bot in a channel (it must be a current member, or WS/webhook/sends fail).
 curl -s -X POST "$THREADS_API/channels" -H "Authorization: Bearer $BOT_TOKEN" \
   -H "Content-Type: application/json" -d '{"name":"bot-lab","description":"Bot testing"}'
 # → {"id":"<CHANNEL_ID>", ...}  then add a human:

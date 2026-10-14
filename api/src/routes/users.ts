@@ -279,12 +279,23 @@ export async function handleCreateApiTokenForUser(request: Request, env: Env, pr
 // metadata only (a hashed id, name, created_at) — never the token value.
 export async function handleListMyApiTokens(env: Env, principal: AuthPrincipal): Promise<Response> {
   requireAdminPrincipal(principal);
-  const user = principal.user;
+  return listApiTokenMetadata(env, principal.user.id);
+}
 
+/** Admin-managed token inventory, shared by personal and bot Settings. */
+export async function handleListApiTokensForUser(env: Env, principal: AuthPrincipal, targetUserId: string): Promise<Response> {
+  requireAdminPrincipal(principal, 'tokens:manage');
+  const target = await env.DB.prepare('SELECT id FROM users WHERE id = ?')
+    .bind(targetUserId).first();
+  if (!target) return errorResponse('User not found', 404);
+  return listApiTokenMetadata(env, targetUserId);
+}
+
+async function listApiTokenMetadata(env: Env, userId: string): Promise<Response> {
   const { results } = await env.DB.prepare(
     `SELECT credential_id, name, scopes, expires_at, created_at, last_used_at
      FROM api_tokens WHERE user_id = ? AND revoked_at IS NULL ORDER BY created_at DESC`
-  ).bind(user.id).all<{
+  ).bind(userId).all<{
     credential_id: string;
     name: string;
     scopes: string;

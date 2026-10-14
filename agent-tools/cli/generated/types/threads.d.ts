@@ -558,7 +558,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * GET /users/:id/api-tokens
+         * @description List non-revoked API token metadata for another user. Requires an admin session or an admin bearer token with tokens:manage. Includes scopes, expiry and last use; never returns raw tokens or credential verifiers.
+         */
+        get: operations["getUsersIdApiTokens"];
         put?: never;
         /**
          * POST /users/:id/api-tokens
@@ -4292,6 +4296,32 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["OkResponse"];
+                };
+            };
+            400: components["responses"]["Error"];
+            401: components["responses"]["Error"];
+            403: components["responses"]["Error"];
+            404: components["responses"]["Error"];
+        };
+    };
+    getUsersIdApiTokens: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyApiTokenListResponse"];
                 };
             };
             400: components["responses"]["Error"];
