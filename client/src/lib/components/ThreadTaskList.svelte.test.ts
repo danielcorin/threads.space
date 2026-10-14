@@ -31,7 +31,7 @@ function makeMessage(overrides: Partial<Message> = {}): Message {
 
 describe('ThreadTaskList', () => {
 	test('centers open top-level messages on their thread titles', async () => {
-		const screen = render(ThreadTaskList, {
+		const screen = await render(ThreadTaskList, {
 			props: {
 				items: [makeMessage({ thread_title: 'Repair sim bot', reply_count: 4 })],
 				onopen: vi.fn(),
@@ -47,7 +47,7 @@ describe('ThreadTaskList', () => {
 	});
 
 	test('falls back to message content when a thread has no title', async () => {
-		const screen = render(ThreadTaskList, {
+		const screen = await render(ThreadTaskList, {
 			props: {
 				items: [makeMessage({ content: '**Review** the launch checklist' })],
 				onopen: vi.fn(),
@@ -60,7 +60,7 @@ describe('ThreadTaskList', () => {
 	});
 
 	test('shows only root messages as work items', async () => {
-		const screen = render(ThreadTaskList, {
+		const screen = await render(ThreadTaskList, {
 			props: {
 				items: [
 					makeMessage({ id: 'root', thread_title: 'Root item' }),
@@ -85,7 +85,7 @@ describe('ThreadTaskList', () => {
 		const onunresolve = vi.fn();
 		const open = makeMessage({ id: 'open', thread_title: 'Open item' });
 		const completed = makeMessage({ id: 'done', thread_title: 'Completed item', resolved_at: Date.now() / 1000 });
-		const screen = render(ThreadTaskList, {
+		const screen = await render(ThreadTaskList, {
 			props: { items: [open, completed], onopen: vi.fn(), onresolve, onunresolve }
 		});
 
@@ -103,7 +103,7 @@ describe('ThreadTaskList', () => {
 	test('opens the underlying thread from its title', async () => {
 		const onopen = vi.fn();
 		const message = makeMessage({ thread_title: 'Open this task' });
-		const screen = render(ThreadTaskList, {
+		const screen = await render(ThreadTaskList, {
 			props: { items: [message], onopen, onresolve: vi.fn(), onunresolve: vi.fn() }
 		});
 
@@ -112,7 +112,7 @@ describe('ThreadTaskList', () => {
 	});
 
 	test('filters work items to the selected authors', async () => {
-		const screen = render(ThreadTaskList, {
+		const screen = await render(ThreadTaskList, {
 			props: {
 				items: [
 					makeMessage({ id: 'alice-task', thread_title: 'Human request', user_id: 'alice', display_name: 'Alice' }),
@@ -131,7 +131,7 @@ describe('ThreadTaskList', () => {
 
 	test('supports narrowing the all-authors selection from the filter menu', async () => {
 		const onauthorfilterchange = vi.fn();
-		const screen = render(ThreadTaskList, {
+		const screen = await render(ThreadTaskList, {
 			props: {
 				items: [
 					makeMessage({ id: 'alice-task', user_id: 'alice', display_name: 'Alice' }),
@@ -151,7 +151,7 @@ describe('ThreadTaskList', () => {
 	});
 
 	test('dismisses the author menu on outside click and Escape', async () => {
-		const screen = render(ThreadTaskList, {
+		const screen = await render(ThreadTaskList, {
 			props: {
 				items: [makeMessage()],
 				onopen: vi.fn(),
@@ -177,7 +177,7 @@ describe('ThreadTaskList', () => {
 	});
 
 	test('orders items by timestamp in either direction', async () => {
-		const screen = render(ThreadTaskList, {
+		const screen = await render(ThreadTaskList, {
 			props: {
 				items: [
 					makeMessage({ id: 'older', thread_title: 'Older item', created_at: 100 }),
@@ -198,7 +198,7 @@ describe('ThreadTaskList', () => {
 	});
 
 	test('independently hides and shows open and closed items', async () => {
-		const screen = render(ThreadTaskList, {
+		const screen = await render(ThreadTaskList, {
 			props: {
 				items: [
 					makeMessage({ id: 'open', thread_title: 'Visible open item' }),
