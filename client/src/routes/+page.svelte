@@ -561,7 +561,7 @@
 	});
 
 	// VisualViewport-based keyboard detection is handled in ui.svelte.ts init().
-	// It sets ui.viewportHeight which is applied as an inline style on the app-shell div.
+	// It sets --keyboard-viewport-height, which sizes the app-shell (see app.css).
 	// iOS Safari ignores interactive-widget=resizes-content (Chromium-only),
 	// so we need the visualViewport API to detect the keyboard and set explicit height.
 
@@ -579,6 +579,9 @@
 				window.scrollTo(0, 0);
 			}
 		}
+		// The login form can leave the document scrolled (iOS scrolled it to
+		// reveal the password field), and no scroll event fires after mount.
+		resetScroll();
 		window.addEventListener('scroll', resetScroll, { passive: true });
 		return () => window.removeEventListener('scroll', resetScroll);
 	});
@@ -588,7 +591,6 @@
 
 <div
 	class="app-shell"
-	style:height={ui.viewportHeight !== null ? `${ui.viewportHeight}px` : undefined}
 	onclick={handleDeepLinkClick}
 	onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter') handleDeepLinkClick(e as unknown as MouseEvent); }}
 	role="presentation"

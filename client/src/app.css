@@ -59,21 +59,31 @@ a, button, summary, label[for], select,
    On iOS, dvh/100% do NOT shrink when the virtual keyboard opens. The keyboard
    simply overlays the page.
 
-   Our fix: ui.svelte.ts listens to window.visualViewport resize events. When
-   the visual viewport shrinks (keyboard open), it sets an explicit pixel height
-   via an inline style on the app-shell div, overriding the 100dvh below.
-   When the keyboard closes, the inline style is removed and 100dvh takes over.
+   Our fix: ui.svelte.ts listens to window.visualViewport resize events. While
+   a text field is focused and the visual viewport has shrunk (keyboard open),
+   it sets --keyboard-viewport-height on <html> to the visible height in pixels.
+   When the keyboard closes, the property is removed and 100dvh takes over.
 
    Do NOT use position:fixed on the app shell or its ancestors — fixed elements
    anchor to the Layout Viewport which never shrinks for the keyboard on iOS.
-   The resetScroll listener in +page.svelte catches any iOS scroll-on-focus. */
+   The resetScroll listener in +page.svelte catches any iOS scroll-on-focus,
+   which also means iOS cannot scroll a covered field into view for us. */
 .app-shell {
 	position: relative;
-	height: 100dvh;
+	height: var(--keyboard-viewport-height, 100dvh);
 	overflow: hidden;
 	display: flex;
 	padding-top: env(safe-area-inset-top, 0px);
 	background-color: var(--color-bg);
+}
+
+/* Full-screen overlays (modals, dialogs, sheets) with text fields: add next to
+   `fixed inset-0` so the overlay ends at the top of the iOS keyboard instead of
+   the bottom of the layout viewport. Centered panels then stay visible, and
+   panels capped with max-h-[min(..vh,100%)] shrink and scroll. */
+.keyboard-overlay {
+	bottom: auto;
+	height: var(--keyboard-viewport-height, 100%);
 }
 
 /* Sidebar slide transition */
