@@ -18,7 +18,10 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
       - run: npm ci
-      - run: npm audit
+      # Moderate and above fail the build. Low advisories still print here;
+      # deepmerge (GHSA-gcqx-w48m-w2h4, via @sveltejs/vite-plugin-svelte) has no
+      # patched release and is build-time only.
+      - run: npm audit --audit-level=moderate
       - run: npm --prefix agent-tools audit
       - run: npm run lint
 
