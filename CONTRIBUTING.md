@@ -27,8 +27,10 @@ edit generated contract files by hand.
 Never commit `.env`, `.dev.vars`, Wrangler local state, API tokens, or exported
 instance data.
 
-The root dependency overrides keep SvelteKit's `cookie` and the Cloudflare test
-harness's `sharp` and `undici` on patched versions without upgrading SvelteKit
-to a new major version. Keep these overrides until the upstream dependencies
-require patched versions themselves. Audit both lockfiles with `npm audit` at
-the root and `npm --prefix agent-tools audit` after dependency changes.
+The root dependency overrides keep `esbuild`, the Cloudflare test harness's
+`sharp` and `undici`, and `zod` (used by the MCP SDK and the Workers test pool)
+on patched versions. Keep these overrides until the upstream dependencies
+require patched versions themselves. Run `npm audit --audit-level=moderate` at
+the root after dependency changes, as CI does; it covers every workspace,
+including `agent-tools/cli`. A low-severity `deepmerge` advisory from
+`@sveltejs/vite-plugin-svelte` has no patched release and is expected.

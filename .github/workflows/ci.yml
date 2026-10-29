@@ -22,7 +22,6 @@ jobs:
       # deepmerge (GHSA-gcqx-w48m-w2h4, via @sveltejs/vite-plugin-svelte) has no
       # patched release and is build-time only.
       - run: npm audit --audit-level=moderate
-      - run: npm --prefix agent-tools audit
       - run: npm run lint
 
   bridge:
