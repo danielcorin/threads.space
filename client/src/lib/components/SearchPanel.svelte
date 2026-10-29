@@ -766,7 +766,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
 <div
-	class="fixed inset-0 bg-black/50 flex items-start justify-center pt-0 md:pt-16 z-50"
+	class="fixed inset-0 keyboard-overlay bg-black/50 flex items-start justify-center pt-0 md:pt-16 z-50"
 	onclick={handleClose}
 	onkeydown={(e: KeyboardEvent) => { if (e.key === 'Escape') handleClose(); }}
 	role="button"
@@ -1099,11 +1099,12 @@
 	@media (max-width: 767px) {
 		.ac-dropdown {
 			position: fixed !important;
-			bottom: 0 !important;
+			/* Sit on top of the iOS keyboard (0 when it is closed). */
+			bottom: calc(100% - var(--keyboard-viewport-height, 100%)) !important;
 			top: auto !important;
 			left: 0 !important;
 			right: 0 !important;
-			max-height: 50vh !important;
+			max-height: min(50vh, calc(var(--keyboard-viewport-height, 100dvh) * 0.5)) !important;
 			border-radius: 12px 12px 0 0;
 			border-top: 1px solid var(--color-border);
 			padding-bottom: env(safe-area-inset-bottom, 0px);

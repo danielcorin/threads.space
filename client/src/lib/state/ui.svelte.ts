@@ -15,6 +15,37 @@ let _windowWidth = $state(typeof window !== 'undefined' ? window.innerWidth : 10
 // on a platform where dvh doesn't track the keyboard) and we need an explicit height.
 let _viewportHeight = $state<number | null>(null);
 
+const NON_TEXT_INPUT_TYPES = new Set(['button', 'checkbox', 'color', 'file', 'hidden', 'image', 'radio', 'range', 'reset', 'submit']);
+
+/** True for elements that raise the virtual keyboard when focused. */
+function isTextEntry(el: Element | null): el is HTMLElement {
+	if (!(el instanceof HTMLElement)) return false;
+	if (el instanceof HTMLInputElement) return !NON_TEXT_INPUT_TYPES.has(el.type);
+	return el instanceof HTMLTextAreaElement || el instanceof HTMLSelectElement || el.isContentEditable;
+}
+
+/**
+ * Scroll the focused field into view within its nearest scrollable ancestor
+ * (e.g. a modal body that just shrank above the keyboard). Window scrolling is
+ * avoided because +page.svelte pins the document at 0,0 on touch devices.
+ */
+function revealFocusedField() {
+	const field = document.activeElement;
+	if (!isTextEntry(field)) return;
+	requestAnimationFrame(() => {
+		for (let el = field.parentElement; el && el !== document.body; el = el.parentElement) {
+			const { overflowY } = getComputedStyle(el);
+			if ((overflowY !== 'auto' && overflowY !== 'scroll') || el.scrollHeight <= el.clientHeight) continue;
+			const box = el.getBoundingClientRect();
+			const rect = field.getBoundingClientRect();
+			const margin = 12;
+			if (rect.bottom > box.bottom - margin) el.scrollTop += rect.bottom - box.bottom + margin;
+			else if (rect.top < box.top + margin) el.scrollTop -= box.top - rect.top + margin;
+			return;
+		}
+	});
+}
+
 // Interactive drag state for swipe gesture.
 // dragOffset is 0 (fully closed) to 1 (fully open), or null when not dragging.
 let _sidebarDragOffset = $state<number | null>(null);
@@ -399,33 +430,59 @@ export const ui = {
 		// interactive-widget=resizes-content is a Chromium-only feature.
 		// We listen to visualViewport resize events: when the visual viewport
 		// height is significantly smaller than the window height, the keyboard
-		// is open and we set an explicit pixel height on the app shell.
+		// is open and we publish an explicit pixel height as
+		// --keyboard-viewport-height. The app shell and full-screen overlays
+		// (modals, dialogs) size themselves from it, so fields inside a
+		// position:fixed overlay stay above the keyboard too.
 		const vv = window.visualViewport;
 		let cleanupVV = () => {};
 		if (vv) {
+			const root = document.documentElement;
+			let focusTimer: ReturnType<typeof setTimeout> | undefined;
+
 			// Threshold: if visualViewport is more than 100px shorter than the
 			// window, a keyboard is likely open. We use window.innerHeight as the
 			// "full" reference because it doesn't change when the keyboard opens
 			// on iOS (unlike visualViewport.height which does).
+			// iOS can leave visualViewport shrunk after its own sheets dismiss a
+			// keyboard (e.g. Add to Home Screen), so only trust the shrink while
+			// one of our text fields has focus.
 			function onViewportResize() {
 				if (!vv) return;
 				const full = window.innerHeight;
-				const current = vv.height;
-				// Account for visual viewport offset (iOS scrolls the viewport up)
-				if (full - current > 100) {
-					// Keyboard is open — set explicit height
-					_viewportHeight = current;
+				const current = Math.round(vv.height);
+				const next = full - current > 100 && isTextEntry(document.activeElement) ? current : null;
+				if (next === _viewportHeight) return;
+				_viewportHeight = next;
+				if (next === null) {
+					root.style.removeProperty('--keyboard-viewport-height');
 				} else {
-					// Keyboard closed — revert to CSS-driven height
-					_viewportHeight = null;
+					root.style.setProperty('--keyboard-viewport-height', `${next}px`);
+					revealFocusedField();
 				}
+			}
+
+			// Focus moves don't resize the visual viewport, so re-evaluate once
+			// focus settles (focusout fires before the next focusin).
+			function onFocusChange(e: FocusEvent) {
+				clearTimeout(focusTimer);
+				focusTimer = setTimeout(() => {
+					onViewportResize();
+					if (e.type === 'focusin' && _viewportHeight !== null) revealFocusedField();
+				}, 0);
 			}
 
 			vv.addEventListener('resize', onViewportResize);
 			vv.addEventListener('scroll', onViewportResize);
+			document.addEventListener('focusin', onFocusChange);
+			document.addEventListener('focusout', onFocusChange);
 			cleanupVV = () => {
+				clearTimeout(focusTimer);
 				vv.removeEventListener('resize', onViewportResize);
 				vv.removeEventListener('scroll', onViewportResize);
+				document.removeEventListener('focusin', onFocusChange);
+				document.removeEventListener('focusout', onFocusChange);
+				root.style.removeProperty('--keyboard-viewport-height');
 			};
 		}
 

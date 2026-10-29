@@ -261,4 +261,32 @@ describe('MessageComposer', () => {
 		// saveDraft should be called with empty content on send
 		expect(saveDraft).toHaveBeenCalledWith('ch-1', '', []);
 	});
+
+	test('shared text waits for the channel draft, then appends to it', async () => {
+		let resolveDraft!: (draft: { content: string; attachments: [] }) => void;
+		const loadDraft = vi.fn(
+			() => new Promise<{ content: string; attachments: [] }>((resolve) => { resolveDraft = resolve; })
+		);
+		const saveDraft = vi.fn();
+		const onshareconsumed = vi.fn();
+		const screen = await render(MessageComposer, {
+			props: {
+				onsend: vi.fn(),
+				channelId: 'ch-1',
+				loadDraft,
+				saveDraft,
+				share: { text: 'https://example.com/article', files: [] },
+				onshareconsumed,
+			}
+		});
+
+		const textarea = screen.getByPlaceholder('Type a message...');
+		await expect.element(textarea).toHaveValue('');
+		expect(onshareconsumed).not.toHaveBeenCalled();
+
+		resolveDraft({ content: 'Earlier draft', attachments: [] });
+
+		await expect.element(textarea).toHaveValue('Earlier draft\n\nhttps://example.com/article');
+		expect(onshareconsumed).toHaveBeenCalledOnce();
+	});
 });

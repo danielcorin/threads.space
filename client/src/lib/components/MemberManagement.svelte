@@ -142,7 +142,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+	class="fixed inset-0 keyboard-overlay bg-black/50 flex items-center justify-center z-50"
 	onkeydown={(e: KeyboardEvent) => {
 		if (e.key === 'Escape' && !showDropdown) onclose();
 	}}
@@ -150,7 +150,7 @@
 >
 	<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
 	<div
-		class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg w-full max-w-md mx-4 p-6 max-h-[80vh] flex flex-col"
+		class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg w-full max-w-md mx-4 p-6 max-h-[min(80vh,100%)] flex flex-col"
 		onclick={(e: MouseEvent) => e.stopPropagation()}
 		onkeydown={(e: KeyboardEvent) => {
 			if (e.key === 'Escape' && !showDropdown) onclose();

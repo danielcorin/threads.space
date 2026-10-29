@@ -33,7 +33,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+	class="fixed inset-0 keyboard-overlay bg-black/50 z-50 flex items-center justify-center p-4"
 	onclick={oncancel}
 	onkeydown={(e) => {
 		if (e.key === 'Escape') oncancel();
@@ -41,7 +41,7 @@
 >
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
-		class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg shadow-xl max-w-sm w-full p-5"
+		class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg shadow-xl max-w-sm w-full max-h-full overflow-y-auto p-5"
 		onclick={(e) => e.stopPropagation()}
 		onkeydown={() => {}}
 	>

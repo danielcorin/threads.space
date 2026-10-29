@@ -42,6 +42,14 @@
 	import ProcessesPage from '#lib/components/ProcessesPage.svelte';
 	import InboxPage from '#lib/components/InboxPage.svelte';
 	import AgentOnboardingModal from '#lib/components/AgentOnboardingModal.svelte';
+	import ShareTargetModal from '#lib/components/ShareTargetModal.svelte';
+	import {
+		SHARE_TARGET_PARAM,
+		sharedMessageText,
+		takeSharedFiles,
+		type ShareDestination,
+		type SharedPayload,
+	} from '#lib/shareTarget.js';
 	import { processes } from '#lib/state/processes.svelte.js';
 	import { pins } from '#lib/state/pins.svelte.js';
 	import { savedDrafts } from '#lib/state/saved-drafts.svelte.js';
@@ -68,6 +76,10 @@
 	let droppedFiles = $state<File[] | null>(null);
 	let composerFocusCounter = $state(0);
 	let loadedDraftContent = $state<string | null>(null);
+	// Shared from another app: held while the user picks a destination, then
+	// handed to the composer.
+	let pendingShare = $state<SharedPayload | null>(null);
+	let incomingShare = $state<SharedPayload | null>(null);
 	let sidebarRevealRequest = $state<SidebarRevealRequest | null>(null);
 	let sidebarRevealRequestId = 0;
 
@@ -138,6 +150,21 @@
 		return navController.openMessage(msgId, channelId, isDm, dmPartnerId);
 	}
 
+	function shareTo(destination: ShareDestination) {
+		modals.close('share-target');
+		ui.setView('channels');
+		if (thread.open) thread.close();
+		if (destination.kind === 'dm') {
+			dms.select(destination.id);
+		} else {
+			if (dms.selectedId) dms.select(null);
+			channels.select(destination.id);
+		}
+		if (ui.isMobile) ui.closeSidebar();
+		incomingShare = pendingShare;
+		pendingShare = null;
+	}
+
 	function handleDeepLinkClick(e: MouseEvent) {
 		navController.handleDeepLinkClick(e);
 	}
@@ -193,6 +220,18 @@
 		// Handle deep link URL params (?channel=X&msg=Y)
 		if (auth.loggedIn) {
 			navController.openInitialUrlSearch(window.location.search).catch(() => {});
+		}
+
+		// Handle content shared from another app via the OS share sheet
+		const launchUrl = new URL(window.location.href);
+		if (auth.loggedIn && launchUrl.searchParams.has(SHARE_TARGET_PARAM)) {
+			const text = sharedMessageText(launchUrl.searchParams);
+			window.history.replaceState({}, '', window.location.pathname);
+			takeSharedFiles().then((files) => {
+				if (!text && files.length === 0) return;
+				pendingShare = { text, files };
+				modals.open('share-target');
+			});
 		}
 
 		// Handle deep links from push notification clicks (via service worker postMessage)
@@ -561,7 +600,7 @@
 	});
 
 	// VisualViewport-based keyboard detection is handled in ui.svelte.ts init().
-	// It sets ui.viewportHeight which is applied as an inline style on the app-shell div.
+	// It sets --keyboard-viewport-height, which sizes the app-shell (see app.css).
 	// iOS Safari ignores interactive-widget=resizes-content (Chromium-only),
 	// so we need the visualViewport API to detect the keyboard and set explicit height.
 
@@ -579,6 +618,9 @@
 				window.scrollTo(0, 0);
 			}
 		}
+		// The login form can leave the document scrolled (iOS scrolled it to
+		// reveal the password field), and no scroll event fires after mount.
+		resetScroll();
 		window.addEventListener('scroll', resetScroll, { passive: true });
 		return () => window.removeEventListener('scroll', resetScroll);
 	});
@@ -588,7 +630,6 @@
 
 <div
 	class="app-shell"
-	style:height={ui.viewportHeight !== null ? `${ui.viewportHeight}px` : undefined}
 	onclick={handleDeepLinkClick}
 	onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter') handleDeepLinkClick(e as unknown as MouseEvent); }}
 	role="presentation"
@@ -730,6 +771,8 @@
 						channels={channels.list.map(c => ({ id: c.id, name: c.name }))}
 						externalFiles={droppedFiles}
 						onexternalfilesconsumed={() => { droppedFiles = null; }}
+						share={incomingShare}
+						onshareconsumed={() => { incomingShare = null; }}
 						availableModels={dms.selected?.partner?.bot_capabilities?.models ?? null}
 						modelPickerKey={dms.selected?.partner?.id ?? null}
 						defaultModel="z-ai/glm-5.1-20260406"
@@ -850,6 +893,14 @@
 		<div>scrollY={ui.dbg.windowScrollY} vh={ui.viewportHeight ?? 'null'} focused={ui.dbg.focusedInput ? 'Y' : 'N'} active={ui.dbg.activeTag}</div>
 		<div>n={ui.dbg.eventCount} last={ui.dbg.lastEvent}</div>
 	</div>
+{/if}
+
+{#if modals.isOpen('share-target') && pendingShare}
+	<ShareTargetModal
+		payload={pendingShare}
+		onselect={shareTo}
+		onclose={() => { modals.close('share-target'); pendingShare = null; }}
+	/>
 {/if}
 
 {#if modals.isOpen('agent-onboarding') && auth.user?.is_admin}
