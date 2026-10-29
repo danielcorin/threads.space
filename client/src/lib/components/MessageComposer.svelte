@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy, tick, untrack } from 'svelte';
-	import { api } from '$lib/api.js';
+	import { api } from '#lib/api.js';
 	import MentionAutocomplete from './MentionAutocomplete.svelte';
 	import ChannelAutocomplete from './ChannelAutocomplete.svelte';
 	import FileIcon from 'phosphor-svelte/lib/File';

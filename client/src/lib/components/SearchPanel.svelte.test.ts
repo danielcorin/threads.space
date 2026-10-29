@@ -4,7 +4,7 @@ import { page } from 'vitest/browser';
 import SearchPanel from './SearchPanel.svelte';
 
 // Mock api module
-vi.mock('$lib/api.js', () => ({
+vi.mock('#lib/api.js', () => ({
 	api: {
 		channels: { list: vi.fn().mockResolvedValue([]) },
 		users: { search: vi.fn().mockResolvedValue([]) },
@@ -14,7 +14,7 @@ vi.mock('$lib/api.js', () => ({
 }));
 
 // Mock state modules
-vi.mock('$lib/state/channels.svelte.js', () => ({
+vi.mock('#lib/state/channels.svelte.js', () => ({
 	channels: {
 		list: [
 			{ id: 'ch1', name: 'general', description: 'General chat', is_private: 0, has_unread: 0, unread_count: 0 },
@@ -24,14 +24,14 @@ vi.mock('$lib/state/channels.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/dms.svelte.js', () => ({
+vi.mock('#lib/state/dms.svelte.js', () => ({
 	dms: {
 		list: [],
 		select: vi.fn(),
 	}
 }));
 
-vi.mock('$lib/state/ui.svelte.js', () => ({
+vi.mock('#lib/state/ui.svelte.js', () => ({
 	ui: { setView: vi.fn() }
 }));
 
@@ -40,7 +40,7 @@ let mockRecentSearches: string[] = [];
 let mockDisplayMap: Record<string, string> = {};
 let mockLastQuery: { query: string; pills: Array<{ key: string; value: string; raw: string; displayValue?: string }> } | null = null;
 
-vi.mock('$lib/searchHistory.js', () => ({
+vi.mock('#lib/searchHistory.js', () => ({
 	getRecentSearches: () => mockRecentSearches,
 	addRecentSearch: vi.fn(),
 	removeRecentSearch: vi.fn(),
@@ -140,7 +140,7 @@ describe('SearchPanel', () => {
 	});
 
 	it('typing bare "from:" opens autocomplete (fires API call)', async () => {
-		const { api } = await import('$lib/api.js');
+		const { api } = await import('#lib/api.js');
 		(api.users.search as any).mockResolvedValueOnce([
 			{ id: 'u1', username: 'alice', display_name: 'Alice' },
 		]);
@@ -200,7 +200,7 @@ describe('SearchPanel', () => {
 
 	it('selecting a channel result fires onchannelselect so the composer re-focuses', async () => {
 		const onchannelselect = vi.fn();
-		const { channels } = await import('$lib/state/channels.svelte.js');
+		const { channels } = await import('#lib/state/channels.svelte.js');
 		await render(SearchPanel, { onclose, onnavigatetomessage, onchannelselect });
 
 		// "Jump to..." channel list shows on mount (empty query). Click #general.
@@ -257,7 +257,7 @@ describe('SearchPanel', () => {
 	});
 
 	it('panel re-mount restores last query from localStorage', async () => {
-		const { getLastQuery: _getLastQuery } = await import('$lib/searchHistory.js');
+		const { getLastQuery: _getLastQuery } = await import('#lib/searchHistory.js');
 
 		// Set up persisted query before render
 		mockLastQuery = {
@@ -277,7 +277,7 @@ describe('SearchPanel', () => {
 	});
 
 	it('first Backspace after restoring a previous search clears query and pills', async () => {
-		const { setLastQuery } = await import('$lib/searchHistory.js');
+		const { setLastQuery } = await import('#lib/searchHistory.js');
 
 		mockLastQuery = {
 			query: 'test search',
@@ -332,7 +332,7 @@ describe('SearchPanel', () => {
 		});
 
 		it('close button flushes query persistence', async () => {
-			const { setLastQuery } = await import('$lib/searchHistory.js');
+			const { setLastQuery } = await import('#lib/searchHistory.js');
 
 			await render(SearchPanel, { onclose, onnavigatetomessage });
 			const input = page.getByTestId('search-input');
@@ -366,7 +366,7 @@ describe('SearchPanel', () => {
 
 	describe('results-first ordering when filters active', () => {
 		it('Messages heading appears before Channels & DMs heading when a pill filter is set', async () => {
-			const { api } = await import('$lib/api.js');
+			const { api } = await import('#lib/api.js');
 			(api.search as any).mockResolvedValueOnce({
 				results: [
 					{ id: 'm1', channel_id: 'ch1', content: 'hello world', snippet: 'hello world', username: 'alice', display_name: 'Alice', channel_name: 'general', created_at: 1700000000 },

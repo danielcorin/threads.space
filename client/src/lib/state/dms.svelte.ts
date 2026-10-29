@@ -1,5 +1,5 @@
-import { api } from '$lib/api.js';
-import { channels } from '$lib/state/channels.svelte.js';
+import { api } from '#lib/api.js';
+import { channels } from '#lib/state/channels.svelte.js';
 
 export interface BotCapabilities {
 	/** Model IDs this bot supports (for DM picker). */

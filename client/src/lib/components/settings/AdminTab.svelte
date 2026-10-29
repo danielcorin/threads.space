@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { api } from '$lib/api.js';
-	import type { WorkspaceSecurityResponse } from '$lib/api.js';
-	import { auth } from '$lib/state/auth.svelte.js';
+	import { api } from '#lib/api.js';
+	import type { WorkspaceSecurityResponse } from '#lib/api.js';
+	import { auth } from '#lib/state/auth.svelte.js';
 	import Section from '../ui/Section.svelte';
 	import Banner from '../ui/Banner.svelte';
 	import Field from '../ui/Field.svelte';

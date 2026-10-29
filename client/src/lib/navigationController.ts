@@ -1,18 +1,18 @@
 import { tick, untrack } from 'svelte';
-import { api } from '$lib/api.js';
-import { channels } from '$lib/state/channels.svelte.js';
-import { dms } from '$lib/state/dms.svelte.js';
-import { messages, type Message } from '$lib/state/messages.svelte.js';
-import { navigation, type NavEntry } from '$lib/state/navigation.svelte.js';
-import { thread } from '$lib/state/thread.svelte.js';
-import { ui } from '$lib/state/ui.svelte.js';
-import { folders } from '$lib/state/folders.svelte.js';
-import { FEEDBACK_CHANNEL_ID } from '$lib/constants.js';
+import { api } from '#lib/api.js';
+import { channels } from '#lib/state/channels.svelte.js';
+import { dms } from '#lib/state/dms.svelte.js';
+import { messages, type Message } from '#lib/state/messages.svelte.js';
+import { navigation, type NavEntry } from '#lib/state/navigation.svelte.js';
+import { thread } from '#lib/state/thread.svelte.js';
+import { ui } from '#lib/state/ui.svelte.js';
+import { folders } from '#lib/state/folders.svelte.js';
+import { FEEDBACK_CHANNEL_ID } from '#lib/constants.js';
 import {
 	buildConversationNavigationOrder,
 	findUnreadConversation,
 	type UnreadNavigationDirection,
-} from '$lib/unreadNavigation.js';
+} from '#lib/unreadNavigation.js';
 
 type NavigationControllerState = {
 	setHighlightMessageId: (id: string | null) => void;

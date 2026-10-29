@@ -1,10 +1,10 @@
-import { auth } from '$lib/state/auth.svelte.js';
-import { channels } from '$lib/state/channels.svelte.js';
-import { dms } from '$lib/state/dms.svelte.js';
-import { processes, type Process } from '$lib/state/processes.svelte.js';
-import { inbox } from '$lib/state/inbox.svelte.js';
-import { updateBadge } from '$lib/badge.js';
-import { websocketOrigin } from '$lib/ws-url.js';
+import { auth } from '#lib/state/auth.svelte.js';
+import { channels } from '#lib/state/channels.svelte.js';
+import { dms } from '#lib/state/dms.svelte.js';
+import { processes, type Process } from '#lib/state/processes.svelte.js';
+import { inbox } from '#lib/state/inbox.svelte.js';
+import { updateBadge } from '#lib/badge.js';
+import { websocketOrigin } from '#lib/ws-url.js';
 
 /**
  * Owner-scoped global event stream (`GET /events`). ONE socket for the whole app

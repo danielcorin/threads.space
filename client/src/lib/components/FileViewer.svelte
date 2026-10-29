@@ -4,8 +4,8 @@
 	import DownloadSimple from 'phosphor-svelte/lib/DownloadSimple';
 	import ArrowSquareOut from 'phosphor-svelte/lib/ArrowSquareOut';
 	import Papa from 'papaparse';
-	import { detectViewerType, type ViewerType } from '$lib/utils/file-viewer.js';
-	import { renderMarkdown } from '$lib/utils/markdown.js';
+	import { detectViewerType, type ViewerType } from '#lib/utils/file-viewer.js';
+	import { renderMarkdown } from '#lib/utils/markdown.js';
 	import JsonNode from './file-viewers/JsonNode.svelte';
 
 	interface Props {

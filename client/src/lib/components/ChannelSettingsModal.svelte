@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { Channel } from '$lib/state/channels.svelte.js';
-	import { channels } from '$lib/state/channels.svelte.js';
-	import { api } from '$lib/api.js';
+	import type { Channel } from '#lib/state/channels.svelte.js';
+	import { channels } from '#lib/state/channels.svelte.js';
+	import { api } from '#lib/api.js';
 	import Trash from 'phosphor-svelte/lib/Trash';
 	import Modal from './ui/Modal.svelte';
 	import Section from './ui/Section.svelte';

@@ -1,4 +1,4 @@
-import { api } from '$lib/api.js';
+import { api } from '#lib/api.js';
 
 export interface SavedDraft {
 	id: string;

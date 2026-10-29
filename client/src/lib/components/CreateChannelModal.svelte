@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { channels } from '$lib/state/channels.svelte.js';
-	import { auth } from '$lib/state/auth.svelte.js';
+	import { channels } from '#lib/state/channels.svelte.js';
+	import { auth } from '#lib/state/auth.svelte.js';
 	import Lock from 'phosphor-svelte/lib/Lock';
 	import Modal from './ui/Modal.svelte';
 	import Banner from './ui/Banner.svelte';

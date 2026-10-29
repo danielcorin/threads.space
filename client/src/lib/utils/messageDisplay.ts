@@ -1,6 +1,6 @@
 // Pure display helpers extracted from MessageItem.svelte.
 
-import type { Reaction } from '$lib/state/messages.svelte.js';
+import type { Reaction } from '#lib/state/messages.svelte.js';
 
 export interface ReactionGroup {
 	emoji: string;

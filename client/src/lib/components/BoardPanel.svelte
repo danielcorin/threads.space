@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { board, type KanbanCard } from '$lib/state/board.svelte.js';
-	import { ui } from '$lib/state/ui.svelte.js';
+	import { board, type KanbanCard } from '#lib/state/board.svelte.js';
+	import { ui } from '#lib/state/ui.svelte.js';
 	import Plus from 'phosphor-svelte/lib/Plus';
 	import Trash from 'phosphor-svelte/lib/Trash';
 	import X from 'phosphor-svelte/lib/X';

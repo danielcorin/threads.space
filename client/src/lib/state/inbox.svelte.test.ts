@@ -8,18 +8,18 @@ const mocks = vi.hoisted(() => ({
 	dmDecrement: vi.fn(),
 }));
 
-vi.mock('$lib/api.js', () => ({
+vi.mock('#lib/api.js', () => ({
 	api: {
 		inbox: { list: mocks.list },
 		messages: { markRead: mocks.markRead, reply: mocks.reply },
 	}
 }));
 
-vi.mock('$lib/state/channels.svelte.js', () => ({
+vi.mock('#lib/state/channels.svelte.js', () => ({
 	channels: { decrementUnread: mocks.channelDecrement }
 }));
 
-vi.mock('$lib/state/dms.svelte.js', () => ({
+vi.mock('#lib/state/dms.svelte.js', () => ({
 	dms: { decrementUnread: mocks.dmDecrement }
 }));
 

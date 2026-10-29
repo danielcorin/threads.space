@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('$lib/state/auth.svelte.js', () => ({
+vi.mock('#lib/state/auth.svelte.js', () => ({
 	auth: { user: { id: 'me', username: 'me' } }
 }));
 
-vi.mock('$lib/state/channels.svelte.js', () => ({
+vi.mock('#lib/state/channels.svelte.js', () => ({
 	channels: {
 		list: [] as any[],
 		selectedId: null as string | null,
@@ -13,7 +13,7 @@ vi.mock('$lib/state/channels.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/dms.svelte.js', () => ({
+vi.mock('#lib/state/dms.svelte.js', () => ({
 	dms: {
 		list: [] as any[],
 		selectedId: null as string | null,
@@ -22,7 +22,7 @@ vi.mock('$lib/state/dms.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/processes.svelte.js', () => ({
+vi.mock('#lib/state/processes.svelte.js', () => ({
 	processes: {
 		load: vi.fn().mockResolvedValue(undefined),
 		updateFromEvent: vi.fn(),
@@ -30,26 +30,26 @@ vi.mock('$lib/state/processes.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/state/inbox.svelte.js', () => ({
+vi.mock('#lib/state/inbox.svelte.js', () => ({
 	inbox: {
 		load: vi.fn().mockResolvedValue(undefined),
 		receive: vi.fn()
 	}
 }));
 
-vi.mock('$lib/badge.js', () => ({
+vi.mock('#lib/badge.js', () => ({
 	updateBadge: vi.fn()
 }));
 
-vi.mock('$lib/ws-url.js', () => ({
+vi.mock('#lib/ws-url.js', () => ({
 	websocketOrigin: () => 'ws://threads.test'
 }));
 
-import { updateBadge } from '$lib/badge.js';
-import { channels } from '$lib/state/channels.svelte.js';
-import { dms } from '$lib/state/dms.svelte.js';
-import { processes } from '$lib/state/processes.svelte.js';
-import { inbox } from '$lib/state/inbox.svelte.js';
+import { updateBadge } from '#lib/badge.js';
+import { channels } from '#lib/state/channels.svelte.js';
+import { dms } from '#lib/state/dms.svelte.js';
+import { processes } from '#lib/state/processes.svelte.js';
+import { inbox } from '#lib/state/inbox.svelte.js';
 import { events } from './events.svelte.js';
 
 class FakeWebSocket {

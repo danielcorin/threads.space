@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { normalizeMfaCode } from '$lib/mfa-code.js';
+	import { normalizeMfaCode } from '#lib/mfa-code.js';
 
 	interface Props {
 		id: string;

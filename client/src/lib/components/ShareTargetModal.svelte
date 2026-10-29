@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { channels } from '$lib/state/channels.svelte.js';
-	import { dms } from '$lib/state/dms.svelte.js';
-	import type { ShareDestination, SharedPayload } from '$lib/shareTarget.js';
+	import { channels } from '#lib/state/channels.svelte.js';
+	import { dms } from '#lib/state/dms.svelte.js';
+	import type { ShareDestination, SharedPayload } from '#lib/shareTarget.js';
 	import MagnifyingGlass from 'phosphor-svelte/lib/MagnifyingGlass';
 	import Hash from 'phosphor-svelte/lib/Hash';
 	import Lock from 'phosphor-svelte/lib/Lock';

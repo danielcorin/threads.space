@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { api } from '$lib/api.js';
-	import { channels } from '$lib/state/channels.svelte.js';
+	import { api } from '#lib/api.js';
+	import { channels } from '#lib/state/channels.svelte.js';
 	import X from 'phosphor-svelte/lib/X';
 
 	interface Props {
