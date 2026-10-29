@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth } from '$lib/state/auth.svelte.js';
+	import { auth } from '#lib/state/auth.svelte.js';
 
 	let { onsettings }: { onsettings?: () => void } = $props();
 

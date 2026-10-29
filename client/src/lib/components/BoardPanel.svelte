@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { board, type KanbanCard } from '$lib/state/board.svelte.js';
-	import { ui } from '$lib/state/ui.svelte.js';
+	import { board, type KanbanCard } from '#lib/state/board.svelte.js';
+	import { ui } from '#lib/state/ui.svelte.js';
 	import Plus from 'phosphor-svelte/lib/Plus';
 	import Trash from 'phosphor-svelte/lib/Trash';
 	import X from 'phosphor-svelte/lib/X';
@@ -261,14 +261,14 @@
 <!-- Edit card modal -->
 {#if board.editingCard}
 	<div
-		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+		class="fixed inset-0 keyboard-overlay z-50 flex items-center justify-center bg-black/50"
 		onclick={() => board.setEditingCard(null)}
 		onkeydown={(e: KeyboardEvent) => { if (e.key === 'Escape') board.setEditingCard(null); }}
 		role="button"
 		tabindex="0"
 	>
 		<div
-			class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg shadow-xl w-full max-w-md mx-4 p-4"
+			class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg shadow-xl w-full max-w-md mx-4 max-h-full overflow-y-auto p-4"
 			onclick={(e: MouseEvent) => { e.stopPropagation(); }}
 			onkeydown={(e: KeyboardEvent) => { e.stopPropagation(); }}
 			role="dialog"
@@ -364,14 +364,14 @@
 <!-- Delete confirmation modal -->
 {#if confirmDeleteId}
 	<div
-		class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50"
+		class="fixed inset-0 keyboard-overlay z-[60] flex items-center justify-center bg-black/50"
 		onclick={() => { confirmDeleteId = null; }}
 		onkeydown={(e: KeyboardEvent) => { if (e.key === 'Escape') confirmDeleteId = null; }}
 		role="button"
 		tabindex="0"
 	>
 		<div
-			class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg shadow-xl w-full max-w-sm mx-4 p-4"
+			class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg shadow-xl w-full max-w-sm mx-4 max-h-full overflow-y-auto p-4"
 			onclick={(e: MouseEvent) => { e.stopPropagation(); }}
 			onkeydown={(e: KeyboardEvent) => { e.stopPropagation(); }}
 			role="dialog"

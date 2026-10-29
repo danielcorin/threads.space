@@ -5,6 +5,19 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    groups:
+      # vitest and @vitest/* pin each other's exact versions; bump them together.
+      vitest:
+        patterns:
+          - vitest
+          - '@vitest/*'
+    ignore:
+      # @cloudflare/vitest-pool-workers (API tests) still requires vitest ^4.1.
+      # Lift this once it supports vitest 5.
+      - dependency-name: vitest
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@vitest/*'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: gomod
     directory: /agent-tools/bridge
     schedule:

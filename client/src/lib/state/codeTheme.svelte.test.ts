@@ -1,6 +1,6 @@
 import { describe, expect, test, beforeEach, vi } from 'vitest';
 import { codeTheme, DEFAULT_CODE_THEME, isValidCodeTheme, CODE_THEME_KEYS } from './codeTheme.svelte.js';
-import { api } from '$lib/api.js';
+import { api } from '#lib/api.js';
 
 // Spy on the network call so we can assert what gets persisted without
 // actually hitting an API.

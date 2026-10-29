@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { inbox, type InboxMessage } from '$lib/state/inbox.svelte.js';
-	import { renderMarkdown } from '$lib/utils/markdown.js';
-	import { formatTime } from '$lib/utils/time.js';
+	import { inbox, type InboxMessage } from '#lib/state/inbox.svelte.js';
+	import { renderMarkdown } from '#lib/utils/markdown.js';
+	import { formatTime } from '#lib/utils/time.js';
 	import ArchiveTray from 'phosphor-svelte/lib/Tray';
 	import ArrowBendUpLeft from 'phosphor-svelte/lib/ArrowBendUpLeft';
 	import ArrowSquareOut from 'phosphor-svelte/lib/ArrowSquareOut';

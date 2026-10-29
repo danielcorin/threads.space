@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { messageActions } from '$lib/state/message-actions.svelte.js';
-	import { emojiPicker } from '$lib/state/emoji-picker.svelte.js';
-	import { auth } from '$lib/state/auth.svelte.js';
+	import { messageActions } from '#lib/state/message-actions.svelte.js';
+	import { emojiPicker } from '#lib/state/emoji-picker.svelte.js';
+	import { auth } from '#lib/state/auth.svelte.js';
 	import Plus from 'phosphor-svelte/lib/Plus';
 	import Copy from 'phosphor-svelte/lib/Copy';
 	import Link from 'phosphor-svelte/lib/Link';

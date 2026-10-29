@@ -1,7 +1,7 @@
 import { afterEach, expect, test, vi } from 'vitest';
 
-vi.mock('$lib/state/auth.svelte.js', () => ({ auth: { user: { id: 'me' } } }));
-vi.mock('$lib/state/channels.svelte.js', () => ({ channels: { ensureLoaded: vi.fn().mockResolvedValue(undefined) } }));
+vi.mock('#lib/state/auth.svelte.js', () => ({ auth: { user: { id: 'me' } } }));
+vi.mock('#lib/state/channels.svelte.js', () => ({ channels: { ensureLoaded: vi.fn().mockResolvedValue(undefined) } }));
 import { channels } from './channels.svelte.js';
 import { presence } from './presence.svelte.js';
 

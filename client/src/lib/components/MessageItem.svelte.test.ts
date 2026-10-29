@@ -1,9 +1,9 @@
 import { render } from 'vitest-browser-svelte';
 import { expect, test, vi, describe } from 'vitest';
-import type { Message } from '$lib/state/messages.svelte.js';
+import type { Message } from '#lib/state/messages.svelte.js';
 
 // Mock the stores and api before importing the component
-vi.mock('$lib/state/auth.svelte.js', () => ({
+vi.mock('#lib/state/auth.svelte.js', () => ({
 	auth: {
 		get user() {
 			return { id: 'user-1', username: 'testuser' };
@@ -11,7 +11,7 @@ vi.mock('$lib/state/auth.svelte.js', () => ({
 	}
 }));
 
-vi.mock('$lib/api.js', () => ({
+vi.mock('#lib/api.js', () => ({
 	api: {
 		reactions: {
 			add: vi.fn(),
@@ -24,13 +24,13 @@ vi.mock('$lib/api.js', () => ({
 	API_BASE: '/api'
 }));
 
-vi.mock('$lib/state/message-actions.svelte.js', () => ({
+vi.mock('#lib/state/message-actions.svelte.js', () => ({
 	messageActions: {
 		open: vi.fn()
 	}
 }));
 
-vi.mock('$lib/state/emoji-picker.svelte.js', () => ({
+vi.mock('#lib/state/emoji-picker.svelte.js', () => ({
 	emojiPicker: {
 		get quickEmojis() {
 			return ['👍', '❤️', '😂'];

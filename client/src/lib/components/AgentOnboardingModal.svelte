@@ -11,7 +11,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4"
+	class="fixed inset-0 keyboard-overlay bg-black/60 flex items-center justify-center z-50 px-4"
 	onclick={ondismiss}
 	onkeydown={(e: KeyboardEvent) => {
 		if (e.key === 'Escape') ondismiss();
@@ -19,7 +19,7 @@
 >
 	<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
 	<div
-		class="w-full max-w-3xl max-h-[90vh] overflow-y-auto overscroll-none bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg p-6 shadow-xl"
+		class="w-full max-w-3xl max-h-[min(90vh,100%)] overflow-y-auto overscroll-none bg-[var(--color-bg-surface)] border border-[var(--color-border)] rounded-lg p-6 shadow-xl"
 		role="dialog"
 		aria-modal="true"
 		aria-labelledby="agent-onboarding-title"

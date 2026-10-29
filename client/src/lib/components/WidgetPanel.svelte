@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { API_BASE } from '$lib/api.js';
-	import { buildWidgetDataUrl } from '$lib/widgetBridge.js';
-	import { ui } from '$lib/state/ui.svelte.js';
+	import { API_BASE } from '#lib/api.js';
+	import { buildWidgetDataUrl } from '#lib/widgetBridge.js';
+	import { ui } from '#lib/state/ui.svelte.js';
 	import { onMount, onDestroy } from 'svelte';
 	import PuzzlePiece from 'phosphor-svelte/lib/PuzzlePiece';
 	import CaretLeft from 'phosphor-svelte/lib/CaretLeft';

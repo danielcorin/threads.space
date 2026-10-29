@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { api } from '$lib/api.js';
+	import { api } from '#lib/api.js';
 	import Section from '../ui/Section.svelte';
 	import Banner from '../ui/Banner.svelte';
 	import Button from '../ui/Button.svelte';

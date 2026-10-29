@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { ui } from '$lib/state/ui.svelte.js';
+	import { ui } from '#lib/state/ui.svelte.js';
 	import PuzzlePiece from 'phosphor-svelte/lib/PuzzlePiece';
 	import X from 'phosphor-svelte/lib/X';
 	import WidgetPanel from './WidgetPanel.svelte';

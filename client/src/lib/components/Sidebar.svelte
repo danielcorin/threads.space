@@ -7,16 +7,16 @@
 	import CreateChannelModal from './CreateChannelModal.svelte';
 	import ChannelDirectory from './ChannelDirectory.svelte';
 	import UserSettingsModal from './UserSettingsModal.svelte';
-	import { ui } from '$lib/state/ui.svelte.js';
-	import { modals } from '$lib/state/modals.svelte.js';
-	import { processes } from '$lib/state/processes.svelte.js';
-	import { channels } from '$lib/state/channels.svelte.js';
-	import { dms } from '$lib/state/dms.svelte.js';
-	import { FEEDBACK_CHANNEL_ID } from '$lib/constants.js';
+	import { ui } from '#lib/state/ui.svelte.js';
+	import { modals } from '#lib/state/modals.svelte.js';
+	import { processes } from '#lib/state/processes.svelte.js';
+	import { channels } from '#lib/state/channels.svelte.js';
+	import { dms } from '#lib/state/dms.svelte.js';
+	import { FEEDBACK_CHANNEL_ID } from '#lib/constants.js';
 	import Cpu from 'phosphor-svelte/lib/Cpu';
 	import ChatCircleText from 'phosphor-svelte/lib/ChatCircleText';
 	import Tray from 'phosphor-svelte/lib/Tray';
-	import type { SidebarRevealRequest } from '$lib/unreadNavigation.js';
+	import type { SidebarRevealRequest } from '#lib/unreadNavigation.js';
 
 	interface Props {
 		revealRequest?: SidebarRevealRequest | null;

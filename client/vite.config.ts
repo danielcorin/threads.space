@@ -1,3 +1,4 @@
+import adapter from '@sveltejs/adapter-cloudflare';
 import { sveltekit } from '@sveltejs/kit/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
@@ -24,7 +25,19 @@ export default defineConfig({
 		__COMMIT_SHA__: JSON.stringify(commitSha),
 		__REPO_URL__: JSON.stringify(repoUrl)
 	},
-	plugins: [tailwindcss(), sveltekit()],
+	plugins: [
+		tailwindcss(),
+		sveltekit({
+			dynamicCompileOptions: ({ filename }) =>
+				filename.includes('node_modules') ? undefined : { runes: true },
+
+			// Keep SvelteKit's generated Worker out of the repository-owned combined
+			// Worker entrypoint. The root Wrangler config deliberately points at
+			// worker/combined.ts, so allowing adapter auto-discovery would overwrite
+			// that source file on every build.
+			adapter: adapter({ config: 'wrangler.svelte.jsonc' })
+		})
+	],
 	build: {
 		// Threads intentionally ships as a single app shell; keep the warning
 		// threshold aligned with the current bundle size so build output stays clean.

@@ -1,4 +1,4 @@
-import { api } from '$lib/api.js';
+import { api } from '#lib/api.js';
 
 export function compareMessages(a: Message, b: Message): number {
 	const aOptimistic = !!a.client_delivery_status;

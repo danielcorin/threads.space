@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy, tick, untrack } from 'svelte';
-	import { api } from '$lib/api.js';
+	import { api } from '#lib/api.js';
 	import MentionAutocomplete from './MentionAutocomplete.svelte';
 	import ChannelAutocomplete from './ChannelAutocomplete.svelte';
 	import FileIcon from 'phosphor-svelte/lib/File';
@@ -60,6 +60,9 @@
 		channels?: ChannelInfo[];
 		externalFiles?: File[] | null;
 		onexternalfilesconsumed?: () => void;
+		/** Content from the OS share sheet; appended to this channel's draft once it loads. */
+		share?: { text: string; files: File[] } | null;
+		onshareconsumed?: () => void;
 		editingMessage?: EditingMessage | null;
 		oneditsubmit?: (messageId: string, content: string) => void | Promise<unknown>;
 		oneditcancel?: () => void;
@@ -75,7 +78,7 @@
 		disabledReason?: string | null;
 	}
 
-	let { onsend, ontypingstart, ontypingstop, placeholder = 'Type a message...', focusTrigger, channelId, loadDraft, saveDraft, members = [], channels: channelsList = [], externalFiles = null, onexternalfilesconsumed, editingMessage = null, oneditsubmit, oneditcancel, onsavedraft, loadedDraftContent = null, onloadeddraftconsumed, availableModels = null, modelPickerKey = null, defaultModel = null, disabledReason = null }: Props = $props();
+	let { onsend, ontypingstart, ontypingstop, placeholder = 'Type a message...', focusTrigger, channelId, loadDraft, saveDraft, members = [], channels: channelsList = [], externalFiles = null, onexternalfilesconsumed, share = null, onshareconsumed, editingMessage = null, oneditsubmit, oneditcancel, onsavedraft, loadedDraftContent = null, onloadeddraftconsumed, availableModels = null, modelPickerKey = null, defaultModel = null, disabledReason = null }: Props = $props();
 
 	// Model picker state (tela DM only — gated by availableModels prop on caller side)
 	const PICKER_STORAGE_PREFIX = 'tela-model:';
@@ -117,6 +120,9 @@
 	let fileInputEl: HTMLInputElement | undefined = $state();
 	let draftTimeout: ReturnType<typeof setTimeout> | null = null;
 	let pendingFiles = $state<PendingFile[]>([]);
+	// Channel whose saved draft has finished loading. Shared content waits for
+	// it so it lands on top of the draft rather than being saved over it.
+	let draftReadyFor = $state<string | null>(null);
 
 	// Voice-to-text recording state. `recordingSupported` gates the mic button so
 	// it never appears in browsers without MediaRecorder/getUserMedia.
@@ -240,10 +246,27 @@
 		}
 	});
 
+	// Apply content shared from another app once this channel's draft is in place
+	$effect(() => {
+		if (!share || sendInFlight) return;
+		if (loadDraft && (!channelId || draftReadyFor !== channelId)) return;
+		const { text, files } = share;
+		onshareconsumed?.();
+		untrack(() => {
+			if (text) {
+				content = content.trim() ? `${content.trimEnd()}\n\n${text}` : text;
+				scheduleDraftSave();
+				tick().then(() => autoResize());
+			}
+			if (files.length > 0) uploadFiles(files);
+		});
+	});
+
 	// Load draft when channel changes
 	$effect(() => {
 		const cid = channelId;
 		if (!cid || !loadDraft) return;
+		draftReadyFor = null;
 		// Clear pending files when switching channels so stale attachments don't linger
 		// Use untrack to avoid reading pendingFiles as a dependency (which would cause infinite loop)
 		untrack(() => {
@@ -255,6 +278,7 @@
 		loadDraft(cid).then((draft) => {
 			// Only set if we're still on the same channel
 			if (channelId === cid) {
+				draftReadyFor = cid;
 				// Don't clobber anything the user typed/attached while the draft
 				// request was in flight
 				const typed = (textareaEl?.value ?? content).trim();

@@ -2,9 +2,9 @@
 	import { onMount } from 'svelte';
 	import QRCode from 'qrcode';
 	import Check from 'phosphor-svelte/lib/Check';
-	import { api } from '$lib/api.js';
-	import type { MfaSetup, MySecurityResponse } from '$lib/api.js';
-	import { auth } from '$lib/state/auth.svelte.js';
+	import { api } from '#lib/api.js';
+	import type { MfaSetup, MySecurityResponse } from '#lib/api.js';
+	import { auth } from '#lib/state/auth.svelte.js';
 	import Section from '../ui/Section.svelte';
 	import Banner from '../ui/Banner.svelte';
 	import Field from '../ui/Field.svelte';

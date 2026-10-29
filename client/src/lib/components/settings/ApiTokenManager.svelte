@@ -3,7 +3,7 @@
 	import Copy from 'phosphor-svelte/lib/Copy';
 	import Check from 'phosphor-svelte/lib/Check';
 	import Trash from 'phosphor-svelte/lib/Trash';
-	import { api } from '$lib/api.js';
+	import { api } from '#lib/api.js';
 	import Section from '../ui/Section.svelte';
 	import Banner from '../ui/Banner.svelte';
 	import Field from '../ui/Field.svelte';

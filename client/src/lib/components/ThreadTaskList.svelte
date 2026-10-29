@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import type { Message } from '$lib/state/messages.svelte.js';
-	import { isStepMessage } from '$lib/utils/groupSteps.js';
-	import { formatTime } from '$lib/utils/time.js';
+	import type { Message } from '#lib/state/messages.svelte.js';
+	import { isStepMessage } from '#lib/utils/groupSteps.js';
+	import { formatTime } from '#lib/utils/time.js';
 	import ArrowClockwise from 'phosphor-svelte/lib/ArrowClockwise';
 	import CaretRight from 'phosphor-svelte/lib/CaretRight';
 	import ChatCircleDots from 'phosphor-svelte/lib/ChatCircleDots';

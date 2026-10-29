@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { ui } from '$lib/state/ui.svelte.js';
-	import { messages } from '$lib/state/messages.svelte.js';
-	import { channels } from '$lib/state/channels.svelte.js';
-	import { dms } from '$lib/state/dms.svelte.js';
-	import type { ThreadsSocket } from '$lib/ws.svelte.js';
+	import { ui } from '#lib/state/ui.svelte.js';
+	import { messages } from '#lib/state/messages.svelte.js';
+	import { channels } from '#lib/state/channels.svelte.js';
+	import { dms } from '#lib/state/dms.svelte.js';
+	import type { ThreadsSocket } from '#lib/ws.svelte.js';
 	import CaretDown from 'phosphor-svelte/lib/CaretDown';
 	import CaretRight from 'phosphor-svelte/lib/CaretRight';
 	import X from 'phosphor-svelte/lib/X';

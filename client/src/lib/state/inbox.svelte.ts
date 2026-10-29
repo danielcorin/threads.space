@@ -1,7 +1,7 @@
-import { api } from '$lib/api.js';
-import { channels } from '$lib/state/channels.svelte.js';
-import { dms } from '$lib/state/dms.svelte.js';
-import type { Message } from '$lib/state/messages.svelte.js';
+import { api } from '#lib/api.js';
+import { channels } from '#lib/state/channels.svelte.js';
+import { dms } from '#lib/state/dms.svelte.js';
+import type { Message } from '#lib/state/messages.svelte.js';
 
 export interface InboxMessage extends Message {
 	channel_name: string;

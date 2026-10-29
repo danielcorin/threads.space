@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { channels } from '$lib/state/channels.svelte.js';
-	import { folders } from '$lib/state/folders.svelte.js';
-	import { drafts } from '$lib/state/drafts.svelte.js';
-	import { processes } from '$lib/state/processes.svelte.js';
-	import { createLongPressDrag } from '$lib/useLongPressDrag.js';
+	import { channels } from '#lib/state/channels.svelte.js';
+	import { folders } from '#lib/state/folders.svelte.js';
+	import { drafts } from '#lib/state/drafts.svelte.js';
+	import { processes } from '#lib/state/processes.svelte.js';
+	import { createLongPressDrag } from '#lib/useLongPressDrag.js';
 	import MagnifyingGlass from 'phosphor-svelte/lib/MagnifyingGlass';
-	import { ui } from '$lib/state/ui.svelte.js';
-	import type { SidebarRevealRequest } from '$lib/unreadNavigation.js';
+	import { ui } from '#lib/state/ui.svelte.js';
+	import type { SidebarRevealRequest } from '#lib/unreadNavigation.js';
 	import ConfirmDialog from './ConfirmDialog.svelte';
 
 	interface Props {

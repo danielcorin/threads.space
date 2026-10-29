@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { messages } from '$lib/state/messages.svelte.js';
-	import { pins } from '$lib/state/pins.svelte.js';
-	import { dateKey, formatDateSeparator } from '$lib/utils/time.js';
+	import { messages } from '#lib/state/messages.svelte.js';
+	import { pins } from '#lib/state/pins.svelte.js';
+	import { dateKey, formatDateSeparator } from '#lib/utils/time.js';
 	import MessageItem from './MessageItem.svelte';
 	import AgentSteps from './AgentSteps.svelte';
 	import ConfirmDialog from './ConfirmDialog.svelte';
-	import { groupMessages, type RenderItem } from '$lib/utils/groupSteps.js';
-	import type { Message } from '$lib/state/messages.svelte.js';
+	import { groupMessages, type RenderItem } from '#lib/utils/groupSteps.js';
+	import type { Message } from '#lib/state/messages.svelte.js';
 
 	interface Props {
 		onreply: (message: Message) => void;
