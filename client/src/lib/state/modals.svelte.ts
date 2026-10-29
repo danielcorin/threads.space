@@ -1,9 +1,10 @@
 // Central registry for the app's mutually-exclusive dialog modals.
 //
 // These are the full-screen overlay dialogs (create channel, browse, new DM,
-// user settings, search, channel settings, members, agent onboarding). Only one
-// may be open at a time: opening any modal closes whichever was previously open,
-// and Escape / backdrop clicks route through here so dismissal is uniform.
+// user settings, search, channel settings, members, agent onboarding, share
+// target). Only one may be open at a time: opening any modal closes whichever
+// was previously open, and Escape / backdrop clicks route through here so
+// dismissal is uniform.
 //
 // Deliberately NOT part of this set:
 //   - ConfirmDialog — a nested confirmation that must be able to sit *over* the
@@ -19,7 +20,8 @@ export type ModalId =
 	| 'search'
 	| 'channel-settings'
 	| 'members'
-	| 'agent-onboarding';
+	| 'agent-onboarding'
+	| 'share-target';
 
 let _active = $state<ModalId | null>(null);
 
