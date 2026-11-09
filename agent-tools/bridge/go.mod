@@ -3,7 +3,7 @@ module github.com/danielcorin/threads.space/agent-tools/bridge
 go 1.26.0
 
 require (
-	modernc.org/sqlite v1.61.0
+	modernc.org/sqlite v1.61.1
 	nhooyr.io/websocket v1.8.17
 )
 
