@@ -42,49 +42,34 @@ async function notifyBotViaRecentChannels(env: Env, botUserId: string, excludeCh
 }
 
 export async function handleListChannels(env: Env, user: User): Promise<Response> {
+  // has_unread is derived from unread_count in the outer query. It used to be
+  // two extra MAX(m.id) subqueries per channel with the same filters as the
+  // COUNT; MAX(id) can't use idx_messages_channel's ordering, so each channel's
+  // history was scanned three times per request instead of once. "A qualifying
+  // message newer than the read cursor exists" is exactly unread_count > 0.
   const channels = await env.DB.prepare(`
-    SELECT c.*,
-      cm.notifications,
-      cr.last_read_message_id,
-      CASE cm.notifications
-        WHEN 'none' THEN 0
-        WHEN 'mentions' THEN CASE WHEN (
-          SELECT MAX(m.id) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
+    SELECT x.*, CASE WHEN x.unread_count > 0 THEN 1 ELSE 0 END as has_unread
+    FROM (
+      SELECT c.*,
+        cm.notifications,
+        cr.last_read_message_id,
+        CASE cm.notifications
+          WHEN 'none' THEN 0
+          WHEN 'mentions' THEN (SELECT COUNT(*) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
+            AND (cr.last_read_message_id IS NULL OR m.id > cr.last_read_message_id)
             AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id)
-            AND EXISTS (SELECT 1 FROM message_mentions mm WHERE mm.message_id = m.id AND mm.user_id = ?)
-        ) IS NOT NULL AND (
-          cr.last_read_message_id IS NULL OR cr.last_read_message_id < (
-            SELECT MAX(m.id) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
-              AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id)
-              AND EXISTS (SELECT 1 FROM message_mentions mm WHERE mm.message_id = m.id AND mm.user_id = ?)
-          )
-        ) THEN 1 ELSE 0 END
-        ELSE CASE WHEN (
-          SELECT MAX(m.id) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
-            AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id)
-        ) IS NOT NULL AND (
-          cr.last_read_message_id IS NULL OR cr.last_read_message_id < (
-            SELECT MAX(m.id) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
-              AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id)
-          )
-        ) THEN 1 ELSE 0 END
-      END as has_unread,
-      CASE cm.notifications
-        WHEN 'none' THEN 0
-        WHEN 'mentions' THEN (SELECT COUNT(*) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
-          AND (cr.last_read_message_id IS NULL OR m.id > cr.last_read_message_id)
-          AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id)
-          AND EXISTS (SELECT 1 FROM message_mentions mm WHERE mm.message_id = m.id AND mm.user_id = ?))
-        ELSE (SELECT COUNT(*) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
-          AND (cr.last_read_message_id IS NULL OR m.id > cr.last_read_message_id)
-          AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id))
-      END as unread_count
-    FROM channels c
-    JOIN channel_members cm ON c.id = cm.channel_id
-    LEFT JOIN channel_reads cr ON c.id = cr.channel_id AND cr.user_id = ?
-    WHERE cm.user_id = ? AND (c.is_dm = 0 OR c.is_dm IS NULL) AND cm.left_at IS NULL AND c.archived_at IS NULL
-    ORDER BY c.name
-  `).bind(user.id, user.id, user.id, user.id, user.id, user.id, user.id, user.id, user.id, user.id, user.id).all<Channel & { notifications: string; has_unread: number; unread_count: number; last_read_message_id: string | null }>();
+            AND EXISTS (SELECT 1 FROM message_mentions mm WHERE mm.message_id = m.id AND mm.user_id = ?))
+          ELSE (SELECT COUNT(*) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
+            AND (cr.last_read_message_id IS NULL OR m.id > cr.last_read_message_id)
+            AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id))
+        END as unread_count
+      FROM channels c
+      JOIN channel_members cm ON c.id = cm.channel_id
+      LEFT JOIN channel_reads cr ON c.id = cr.channel_id AND cr.user_id = ?
+      WHERE cm.user_id = ? AND (c.is_dm = 0 OR c.is_dm IS NULL) AND cm.left_at IS NULL AND c.archived_at IS NULL
+    ) x
+    ORDER BY x.name
+  `).bind(user.id, user.id, user.id, user.id, user.id).all<Channel & { notifications: string; has_unread: number; unread_count: number; last_read_message_id: string | null }>();
 
   return jsonResponse(channels.results);
 }
