@@ -147,29 +147,6 @@ export async function handleListDMs(env: Env, user: User): Promise<Response> {
       u.id as partner_id, u.username as partner_username, u.display_name as partner_display_name, u.name_color as partner_name_color, u.role as partner_role, u.bot_capabilities_json as partner_bot_capabilities_json,
       CASE cm.notifications
         WHEN 'none' THEN 0
-        WHEN 'mentions' THEN CASE WHEN (
-          SELECT MAX(m.id) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
-            AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id)
-            AND EXISTS (SELECT 1 FROM message_mentions mm WHERE mm.message_id = m.id AND mm.user_id = ?)
-        ) IS NOT NULL AND (
-          cr.last_read_message_id IS NULL OR cr.last_read_message_id < (
-            SELECT MAX(m.id) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
-              AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id)
-              AND EXISTS (SELECT 1 FROM message_mentions mm WHERE mm.message_id = m.id AND mm.user_id = ?)
-          )
-        ) THEN 1 ELSE 0 END
-        ELSE CASE WHEN (
-          SELECT MAX(m.id) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
-            AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id)
-        ) IS NOT NULL AND (
-          cr.last_read_message_id IS NULL OR cr.last_read_message_id < (
-            SELECT MAX(m.id) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
-              AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id)
-          )
-        ) THEN 1 ELSE 0 END
-      END as has_unread,
-      CASE cm.notifications
-        WHEN 'none' THEN 0
         WHEN 'mentions' THEN (SELECT COUNT(*) FROM messages m WHERE m.channel_id = c.id AND m.deleted_at IS NULL AND m.user_id != ? AND m.message_type IN ('human', 'response')
           AND (cr.last_read_message_id IS NULL OR m.id > cr.last_read_message_id)
           AND NOT EXISTS (SELECT 1 FROM message_reads mr WHERE mr.user_id = cm.user_id AND mr.message_id = m.id)
@@ -187,7 +164,7 @@ export async function handleListDMs(env: Env, user: User): Promise<Response> {
     LEFT JOIN channel_reads cr ON c.id = cr.channel_id AND cr.user_id = ?
     WHERE c.is_dm = 1 AND cm.hidden_at IS NULL
     ORDER BY cm.position IS NULL, cm.position ASC, last_message_at DESC, c.created_at DESC
-  `).bind(user.id, user.id, user.id, user.id, user.id, user.id, user.id, user.id, user.id, user.id, user.id, user.id).all();
+  `).bind(user.id, user.id, user.id, user.id, user.id, user.id).all();
 
   const results = dms.results.map((dm: any) => ({
     id: dm.id,
@@ -198,7 +175,8 @@ export async function handleListDMs(env: Env, user: User): Promise<Response> {
     position: dm.position,
     last_read_message_id: dm.last_read_message_id ?? null,
     notifications: dm.notifications,
-    has_unread: dm.has_unread,
+    // Derived rather than computed in SQL: any unread message means unread_count > 0.
+    has_unread: dm.unread_count > 0 ? 1 : 0,
     unread_count: dm.unread_count,
     last_message_content: dm.last_message_content,
     last_message_at: dm.last_message_at,
