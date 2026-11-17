@@ -35,7 +35,7 @@
 		"vite": "^8.3.4",
 		"vitest": "4.1.12",
 		"vitest-browser-svelte": "^3.1.0",
-		"wrangler": "^4.123.0"
+		"wrangler": "^4.156.0"
 	},
 	"dependencies": {
 		"emoji-picker-element": "^1.29.1",
