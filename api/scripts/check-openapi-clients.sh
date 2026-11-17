@@ -12,7 +12,7 @@ test -f generated/python/threads-api-client/threads_api_client/__init__.py
 
 PYTHONPATH="$PWD/generated/python/threads-api-client" \
   "$PWD/.venv-openapi/bin/python" - <<'PY'
-import httpx
+import httpx2
 
 from threads_api_client import AuthenticatedClient, Client
 from threads_api_client.api.users import get_users_me
@@ -34,13 +34,13 @@ assert api_client.get_httpx_client().headers["Authorization"] == "Bearer test-to
 
 parsed_error = get_users_me._parse_response(
     client=api_client,
-    response=httpx.Response(401, json={"error": "unauthorized"}),
+    response=httpx2.Response(401, json={"error": "unauthorized"}),
 )
 assert isinstance(parsed_error, Error)
 assert parsed_error.error == "unauthorized"
 
 try:
-    get_users_me._parse_response(client=client, response=httpx.Response(599, content=b"boom"))
+    get_users_me._parse_response(client=client, response=httpx2.Response(599, content=b"boom"))
 except UnexpectedStatus as exc:
     assert exc.status_code == 599
     assert exc.content == b"boom"
