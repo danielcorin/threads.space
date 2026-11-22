@@ -440,16 +440,25 @@ export const ui = {
 			const root = document.documentElement;
 			let focusTimer: ReturnType<typeof setTimeout> | undefined;
 
+			// Measures 100dvh, the height the app shell lays out into when no
+			// override is set. window.innerHeight alone is not a safe reference:
+			// in an installed iOS web app it can shrink with the keyboard while
+			// 100dvh does not, which hid the keyboard and left the composer
+			// behind it.
+			const dvhProbe = document.createElement('div');
+			dvhProbe.setAttribute('aria-hidden', 'true');
+			dvhProbe.style.cssText =
+				'position:absolute;top:0;left:0;width:0;height:100dvh;visibility:hidden;pointer-events:none';
+			document.body.appendChild(dvhProbe);
+
 			// Threshold: if visualViewport is more than 100px shorter than the
-			// window, a keyboard is likely open. We use window.innerHeight as the
-			// "full" reference because it doesn't change when the keyboard opens
-			// on iOS (unlike visualViewport.height which does).
+			// height we lay out into, a keyboard is likely open.
 			// iOS can leave visualViewport shrunk after its own sheets dismiss a
 			// keyboard (e.g. Add to Home Screen), so only trust the shrink while
 			// one of our text fields has focus.
 			function onViewportResize() {
 				if (!vv) return;
-				const full = window.innerHeight;
+				const full = Math.max(window.innerHeight, dvhProbe.offsetHeight);
 				const current = Math.round(vv.height);
 				const next = full - current > 100 && isTextEntry(document.activeElement) ? current : null;
 				if (next === _viewportHeight) return;
@@ -482,6 +491,7 @@ export const ui = {
 				vv.removeEventListener('scroll', onViewportResize);
 				document.removeEventListener('focusin', onFocusChange);
 				document.removeEventListener('focusout', onFocusChange);
+				dvhProbe.remove();
 				root.style.removeProperty('--keyboard-viewport-height');
 			};
 		}
